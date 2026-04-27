@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-03-20T18:35:15.692Z",
+  "preferences": {
+    "language": "pt",
+    "theme": "dark"
+  },
+  "scenario": {
+    "numberOfLines": 3,
+    "robotModel": "KR140",
+    "recipes": [
+      {
+        "rowId": "1",
+        "nomeReceita": "Receita 1 - Cofler",
+        "productionBpm": 5,
+        "boxesPerLayer": 6,
+        "layersPerPallet": 4,
+        "picksPerLayer": 2,
+        "slipSheetBottom": 0,
+        "slipSheetBetweenLayers": 0,
+        "palletPick": 1
+      },
+      {
+        "rowId": "2",
+        "nomeReceita": "Receita 2 - Bambu",
+        "productionBpm": 6,
+        "boxesPerLayer": 7,
+        "layersPerPallet": 5,
+        "picksPerLayer": 3,
+        "slipSheetBottom": 0,
+        "slipSheetBetweenLayers": 0,
+        "palletPick": 1
+      }
+    ],
+    "lineRobotTimes": [
+      {
+        "lineIndex": 1,
+        "cycleTimePickS": 10,
+        "cycleTimeSlipSheetS": 0,
+        "cycleTimePalletS": 18
+      },
+      {
+        "lineIndex": 2,
+        "cycleTimePickS": 5,
+        "cycleTimeSlipSheetS": 0,
+        "cycleTimePalletS": 15
+      },
+      {
+        "lineIndex": 3,
+        "cycleTimePickS": 5,
+        "cycleTimeSlipSheetS": 0,
+        "cycleTimePalletS": 10
+      }
+    ],
+    "lineRecipeMap": {
+      "1": "1",
+      "2": "2",
+      "3": "1"
+    }
+  }
+}

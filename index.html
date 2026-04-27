@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cycle Timer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app main-shell">
+    <div class="app-header">
+      <div class="header-left">
+        <div class="app-title">
+          <span class="app-title-primary">Cycle</span>
+          <span class="app-title-accent">Timer</span>
+        </div>
+        <div class="app-subtitle" data-i18n="app_subtitle">Industrial Palletizing Capacity Tool</div>
+      </div>
+
+      <div class="header-toolbar">
+        <div class="header-tabs" role="tablist" data-i18n-aria-label="header_tabs_aria" aria-label="Navegação principal">
+          <button class="tab-button app-tab" data-tab="outputs" type="button" data-i18n="tabs_outputs">OUTPUTS</button>
+        </div>
+        <div class="header-actions">
+          <button class="lang-toggle" id="lang-toggle" type="button" title="Idioma" data-i18n-title="lang_toggle_title" data-i18n-aria-label="lang_toggle_aria">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20Zm7.93 9h-3.18a15.8 15.8 0 0 0-1.2-5.02A8.03 8.03 0 0 1 19.93 11Zm-5.3 0H9.37a13.8 13.8 0 0 1 1.23-4.72A13.1 13.1 0 0 1 12 4.07c.5.7 1.42 2.2 2.63 6.93ZM4.07 13h3.18c.25 1.78.73 3.5 1.2 5.02A8.03 8.03 0 0 1 4.07 13Zm3.18-2H4.07a8.03 8.03 0 0 1 4.38-5.02c-.47 1.52-.95 3.24-1.2 5.02Zm2.12 2h5.26a13.8 13.8 0 0 1-1.23 4.72A13.1 13.1 0 0 1 12 19.93c-.5-.7-1.42-2.2-2.63-6.93Zm0-2c.3-2.03.86-4.01 1.63-5.57c.3-.62.62-1.15.93-1.5c.31.35.63.88.93 1.5c.77 1.56 1.33 3.54 1.63 5.57H9.37Zm7.38 2h3.18a8.03 8.03 0 0 1-4.38 5.02c.47-1.52.95-3.24 1.2-5.02Z"/>
+            </svg>
+          </button>
+          <button class="theme-toggle" id="theme-toggle" type="button" title="Tema" aria-label="Alternar tema">
+            <span class="theme-icon theme-icon--moon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M21.64 13.65A9 9 0 0 1 10.35 2.36a1 1 0 0 0-1.21-1.21A10 10 0 1 0 22.85 14.86a1 1 0 0 0-1.21-1.21ZM12 20a8 8 0 0 1-2.28-15.67A11 11 0 0 0 19.67 14.28A7.98 7.98 0 0 1 12 20Z"/>
+              </svg>
+            </span>
+            <span class="theme-icon theme-icon--sun" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M6.76 4.84l-1.8-1.79L3.54 4.46l1.79 1.8ZM1 11h3v2H1Zm10-10h2v3h-2Zm9.46 3.46l-1.41-1.41l-1.8 1.79l1.42 1.41ZM17 11h3v2h-3ZM12 8a4 4 0 1 0 0 8a4 4 0 0 0 0-8Zm-1 14h2v-3h-2Zm7.24-2.84l1.8 1.79l1.41-1.41l-1.79-1.8ZM4.54 19.54l1.41 1.41l1.8-1.79l-1.42-1.41Z"/>
+              </svg>
+            </span>
+          </button>
+          <div class="header-settings">
+            <button type="button" class="settings-toggle" id="header-settings-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="header-settings-menu" data-i18n-title="menu_settings_title" data-i18n-aria-label="menu_settings_aria">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96c-.5-.38-1.05-.7-1.65-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.6.24-1.15.56-1.65.94l-2.39-.96a.5.5 0 0 0-.6.22L2.74 8.84c-.14.23-.09.5.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.14.25.4.33.6.22l2.39-.96c.5.38 1.05.7 1.65.94l.36 2.54c.05.24.27.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.6-.24 1.15-.56 1.65-.94l2.39.96c.23.1.47.03.6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.6A3.6 3.6 0 1 1 15.6 12 3.6 3.6 0 0 1 12 15.6Z"/>
+              </svg>
+            </button>
+            <div class="header-settings-dropdown" id="header-settings-menu" role="menu" hidden data-i18n-aria-label="menu_settings_panel_aria">
+              <button type="button" class="header-settings-item" role="menuitem" data-settings-action="help">Ajuda</button>
+              <button type="button" class="header-settings-item" role="menuitem" data-settings-action="export-pdf" data-i18n="scenario_export_pdf">Exportar PDF</button>
+              <button type="button" class="header-settings-item" role="menuitem" id="scenario-export-btn" data-i18n="scenario_export">Exportar cenário (JSON)</button>
+              <button type="button" class="header-settings-item" role="menuitem" id="scenario-import-btn" data-i18n="scenario_import">Importar cenário (JSON)</button>
+              <div style="height: 1px; background: rgba(0,0,0,0.1); margin: 4px 0;"></div>
+              <button type="button" class="header-settings-item" role="menuitem" id="scenario-reset-btn" style="color: #dc2626; font-weight: 500;">Zerar dados</button>
+              <input type="file" id="scenario-import-file" accept="application/json,.json" hidden>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="app-tab app-tab--active" data-tab="inputs" id="app-tab-inputs" hidden tabindex="-1" aria-hidden="true"></button>
+      <button type="button" class="app-tab" data-tab="help" id="app-tab-help" hidden tabindex="-1" aria-hidden="true"></button>
+    </div>
+
+    <main class="app-main">
+      <!-- INPUTS VIEW -->
+      <section id="inputs-view" class="view view--active" aria-labelledby="tab-inputs">
+        <div class="io-layout">
+          <button id="restore-inputs-btn" class="restore-inputs-btn" aria-label="Restaurar Entradas" title="Mostrar painel de entrada" hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <!-- LEFT: construção -->
+          <aside class="io-left sidebar">
+            <div class="io-kicker io-left-kicker">
+              <span data-i18n="badge_input">ENTRADA</span>
+              <button id="minimize-inputs-btn" class="sidebar-toggle-btn" aria-label="Minimizar Entradas" title="Ocultar tela de entrada">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+              </button>
+            </div>
+            <!-- 4) Configuração do robô e tempos por linha -->
+            <section class="panel sidebar-section">
+              <div class="panel-body panel-body--no-header">
+                <!-- Nome do projeto -->
+                <div class="grid-1 robot-config-row" style="margin-bottom: 12px;">
+                  <div class="field">
+                    <label for="project-name" class="field-label">
+                      <span data-i18n="in_project_name">Nome do Projeto (Opcional)</span>
+                    </label>
+                    <input id="project-name" class="field-input" type="text" placeholder="Ex.: Projeto Natura - Fase 1">
+                  </div>
+                </div>
+
+                <!-- Linha 1: modelo do robô + quantidade de linhas -->
+                <div class="grid-2 robot-config-row">
+                  <div class="field">
+                    <label for="robot-model" class="field-label">
+                      <span data-i18n="in_robot_model">Modelo do robô</span>
+                      <span class="help-icon" data-help-key="robotName" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                    </label>
+                    <select id="robot-model" class="field-input">
+                      <option value="">Selecione...</option>
+                      <option value="KR140">KR140</option>
+                      <option value="KR240">KR240</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="robot-lines-count" class="field-label">
+                      <span data-i18n="in_lines_count">Quantidade de linhas</span>
+                      <span class="help-icon" data-help-key="linesCount" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                    </label>
+                    <input id="robot-lines-count" class="field-input" type="number" inputmode="numeric" min="1" max="6" value="1">
+                  </div>
+                </div>
+
+
+                <!-- Blocos de tempos por linha -->
+                <div class="robot-times-block">
+                  <div class="robot-times-title">
+                    <span data-i18n="label_cyclePick">Tempo ciclo/pick (s)</span>
+                    <span class="help-icon" data-help-key="cycleTimePickS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </div>
+                  <div class="robot-times-grid robot-times-grid--header" id="robot-times-pick-header">
+                    <div class="robot-line-header" data-line="1" data-i18n="line_1">Linha 1</div>
+                    <div class="robot-line-header" data-line="2" data-i18n="line_2">Linha 2</div>
+                    <div class="robot-line-header" data-line="3" data-i18n="line_3">Linha 3</div>
+                    <div class="robot-line-header" data-line="4" data-i18n="line_4">Linha 4</div>
+                    <div class="robot-line-header" data-line="5" data-i18n="line_5">Linha 5</div>
+                    <div class="robot-line-header" data-line="6" data-i18n="line_6">Linha 6</div>
+                  </div>
+                  <div class="robot-times-grid robot-times-grid--inputs" id="robot-times-pick">
+                    <div class="field robot-line-field" data-line="1">
+                      <input id="robot-cicloProdutoMs" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="2">
+                      <input id="robot-cicloProdutoMs-l2" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="3">
+                      <input id="robot-cicloProdutoMs-l3" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="4">
+                      <input id="robot-cicloProdutoMs-l4" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="5">
+                      <input id="robot-cicloProdutoMs-l5" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="6">
+                      <input id="robot-cicloProdutoMs-l6" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="robot-times-block">
+                  <div class="robot-times-title">
+                    <span data-i18n="label_cycleSlip">Tempo ciclo/slip sheet (s)</span>
+                    <span class="help-icon" data-help-key="cycleTimeSlipSheetS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </div>
+                  <div class="robot-times-grid robot-times-grid--header" id="robot-times-slipsheet-header">
+                    <div class="robot-line-header" data-line="1" data-i18n="line_1">Linha 1</div>
+                    <div class="robot-line-header" data-line="2" data-i18n="line_2">Linha 2</div>
+                    <div class="robot-line-header" data-line="3" data-i18n="line_3">Linha 3</div>
+                    <div class="robot-line-header" data-line="4" data-i18n="line_4">Linha 4</div>
+                    <div class="robot-line-header" data-line="5" data-i18n="line_5">Linha 5</div>
+                    <div class="robot-line-header" data-line="6" data-i18n="line_6">Linha 6</div>
+                  </div>
+                  <div class="robot-times-grid robot-times-grid--inputs" id="robot-times-slipsheet">
+                    <div class="field robot-line-field" data-line="1">
+                      <input id="robot-cicloSlipsheetMs" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="2">
+                      <input id="robot-cicloSlipsheetMs-l2" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="3">
+                      <input id="robot-cicloSlipsheetMs-l3" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="4">
+                      <input id="robot-cicloSlipsheetMs-l4" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="5">
+                      <input id="robot-cicloSlipsheetMs-l5" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="6">
+                      <input id="robot-cicloSlipsheetMs-l6" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="robot-times-block">
+                  <div class="robot-times-title">
+                    <span data-i18n="label_cyclePallet">Tempo ciclo/pallet (s)</span>
+                    <span class="help-icon" data-help-key="cycleTimePalletS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </div>
+                  <div class="robot-times-grid robot-times-grid--header" id="robot-times-pallet-header">
+                    <div class="robot-line-header" data-line="1" data-i18n="line_1">Linha 1</div>
+                    <div class="robot-line-header" data-line="2" data-i18n="line_2">Linha 2</div>
+                    <div class="robot-line-header" data-line="3" data-i18n="line_3">Linha 3</div>
+                    <div class="robot-line-header" data-line="4" data-i18n="line_4">Linha 4</div>
+                    <div class="robot-line-header" data-line="5" data-i18n="line_5">Linha 5</div>
+                    <div class="robot-line-header" data-line="6" data-i18n="line_6">Linha 6</div>
+                  </div>
+                  <div class="robot-times-grid robot-times-grid--inputs" id="robot-times-pallet">
+                    <div class="field robot-line-field" data-line="1">
+                      <input id="robot-cicloPalletMs" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="2">
+                      <input id="robot-cicloPalletMs-l2" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="3">
+                      <input id="robot-cicloPalletMs-l3" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="4">
+                      <input id="robot-cicloPalletMs-l4" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="5">
+                      <input id="robot-cicloPalletMs-l5" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                    <div class="field robot-line-field" data-line="6">
+                      <input id="robot-cicloPalletMs-l6" class="field-input" type="number" inputmode="decimal">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="robot-config-row" style="margin-top: 12px; margin-bottom: 12px;">
+                  <div class="field" style="max-width: 50%;">
+                    <label for="robot-transition-time" class="field-label">
+                      <span data-i18n="in_robot_transition">Tempo transição pallet (s)</span>
+                      <span class="help-icon" data-help-key="palletTransitionTime" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                    </label>
+                    <input id="robot-transition-time" class="field-input" type="number" inputmode="numeric" min="0" value="10">
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 5) Receitas (planilha) -->
+            <section class="panel sidebar-section">
+              <header class="panel-header panel-header--row">
+                <h2 class="panel-title" data-i18n="in_group_recipes">Receitas</h2>
+                <div class="sheet-actions">
+                  <button class="sheet-icon-btn" id="recipes-expand" type="button" title="Expandir planilha" aria-label="Expandir planilha" data-i18n-title="sheet_expand">
+                    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="currentColor" d="M4 10V4h6v2H6v4H4Zm14-4h-4V4h6v6h-2V6ZM6 18h4v2H4v-6h2v4Zm12-4h2v6h-6v-2h4v-4Z"/>
+                    </svg>
+                  </button>
+                  <button class="sheet-add-row" id="recipes-add-row" type="button" data-i18n="sheet_addRow">+ Nova receita</button>
+                </div>
+              </header>
+              <div class="panel-header-divider"></div>
+              <div class="panel-body">
+                <div class="sheet-wrap" role="region" aria-label="Planilha de receitas">
+                  <table class="sheet-table">
+                    <thead>
+                      <tr>
+                        <th>
+                          <span data-i18n="sheet_col_name">Nome da receita</span>
+                          <span class="help-icon" data-help-key="skuName" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </th>
+                        <th>
+                          <span data-i18n="label_production">Produção (cx/min)</span>
+                          <span class="help-icon" data-help-key="productionBpm" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </th>
+                        <th>
+                          <span data-i18n="sheet_col_boxesPerLayer">Caixas por camada</span>
+                          <span class="help-icon" data-help-key="boxesPerLayer" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </th>
+                        <th>
+                          <span data-i18n="sheet_col_layersPerPallet">Camadas por pallet</span>
+                          <span class="help-icon" data-help-key="layersPerPallet" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </th>
+                        <th>
+                          <span data-i18n="sheet_col_picksPerLayer">Qtd. picks por camada</span>
+                          <span class="help-icon" data-help-key="picksPerLayer" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </th>
+                        <th>
+                          <span data-i18n="sheet_col_palletPick">Capturas de pallet</span>
+                          <span class="help-icon" data-help-key="palletPick" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </th>
+                        <th>
+                          <span data-i18n="sheet_col_slipBottom">Slip sheet na base</span>
+                          <span class="help-icon" data-help-key="slipSheetBottom" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </th>
+                        <th>
+                          <span data-i18n="sheet_col_slipBetween">Slip sheet entre camadas</span>
+                          <span class="help-icon" data-help-key="slipSheetBetweenLayers" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </th>
+                        <th class="sheet-col-actions"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="recipes-sheet-body">
+                      <!-- Linha 1: mantém IDs existentes para continuar alimentando o cálculo atual -->
+                      <tr class="sheet-row sheet-row--active" data-row="1">
+                        <td><input id="recipe-nome" class="sheet-cell" type="text" placeholder="Ex.: SKU 123"></td>
+                        <td><input id="recipe-taxaEntradaCxMin" class="sheet-cell" type="text" inputmode="decimal"></td>
+                        <td><input id="recipe-produtosPorCamada" class="sheet-cell" type="text" inputmode="decimal"></td>
+                        <td><input id="recipe-camadasPorPallet" class="sheet-cell" type="text" inputmode="decimal"></td>
+                        <td><input id="recipe-capturasPorCamada" class="sheet-cell" type="text" inputmode="decimal"></td>
+                        <td>
+                          <div class="sheet-field-stack" data-recipe-gate="pallet">
+                            <input id="recipe-capturasPallet" class="sheet-cell" type="text" inputmode="decimal" />
+                            <span id="recipe-sheet-hint-r1-pallet" class="sheet-field-hint" hidden data-i18n="input_hint_gated_pallet"></span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="sheet-field-stack" data-recipe-gate="slip">
+                            <input id="recipe-slipSheetBottom" class="sheet-cell" type="text" inputmode="decimal" />
+                            <span id="recipe-sheet-hint-r1-slip-0" class="sheet-field-hint" hidden data-i18n="input_hint_gated_slip"></span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="sheet-field-stack" data-recipe-gate="slip">
+                            <input id="recipe-slipSheetBetweenLayers" class="sheet-cell" type="text" inputmode="decimal" />
+                            <span id="recipe-sheet-hint-r1-slip-1" class="sheet-field-hint" hidden data-i18n="input_hint_gated_slip"></span>
+                          </div>
+                        </td>
+                        <td class="sheet-cell-actions">
+                          <button class="sheet-row-remove" type="button" data-action="remove-recipe-row" aria-label="Excluir receita">
+                            ×
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </aside>
+
+          <!-- Overlay técnico: edição expandida da planilha -->
+          <div class="sheet-overlay" id="recipes-overlay" aria-hidden="true">
+            <div class="sheet-overlay__backdrop" data-overlay-close="1"></div>
+            <div class="sheet-overlay__panel" role="dialog" aria-modal="true" aria-label="Edição de receitas (expandido)">
+              <div class="sheet-overlay__header">
+                <div class="sheet-overlay__title">Receitas (modo expandido)</div>
+                <div class="sheet-overlay__actions">
+                  <button class="sheet-add-row" id="recipes-add-row-overlay" type="button" data-i18n="sheet_addRow">+ Nova receita</button>
+                  <button class="sheet-icon-btn" id="recipes-collapse" type="button" title="Fechar" aria-label="Fechar" data-i18n-title="sheet_close">
+                    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="currentColor" d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3 1.42 1.42Z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="sheet-overlay__body" id="recipes-overlay-body"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT: consequência -->
+          <section class="io-right output-zone">
+            <section class="panel output-mega">
+              <div class="io-kicker io-kicker--output" data-i18n="badge_output">SAÍDA</div>
+              <!-- HEADER DO OUTPUT (sticky interno) -->
+              <div class="output-header">
+                <div class="output-header-left">
+                  <div class="output-header-title">
+                    <span data-i18n="output_header_recipes_selection">Seleção das receitas</span>
+                    <span id="output-project-name" style="margin-left:8px; font-weight:600; color:var(--vs-primary);"></span>
+                  </div>
+                  <div class="output-line-recipe-grid" id="output-line-recipe-grid"></div>
+                </div>
+
+                <div class="output-header-right">
+                  <!-- KPIs principais agora vivem no bloco "Geral" (coluna direita). -->
+                </div>
+              </div>
+
+              <!-- Conteúdo rolável do output (começa em "Geral") -->
+              <div class="output-scroll">
+                <!-- BLOCO 2 — GERAL (overview principal) -->
+                <section class="output-general">
+                  <div class="vs-card vs-card--main output-general-card">
+                    <header class="vs-card__header output-general-top">
+                      <div class="output-general-title vs-card__title">
+                        <span data-i18n="output_general_title">Geral</span>
+                      </div>
+                      <div class="vs-card__actions">
+                        <button type="button" class="vs-card__action-btn" id="chart-view-toggle" data-i18n-title="output_chart_toggle_view" aria-label="Alternar visualização">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="3" y1="9" x2="21" y2="9"></line>
+                            <line x1="3" y1="15" x2="21" y2="15"></line>
+                            <line x1="9" y1="3" x2="9" y2="21"></line>
+                          </svg>
+                        </button>
+                        <span class="help-icon help-icon--tiny vs-card__action" data-help-key="generalChartComparison" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                      </div>
+                    </header>
+
+                    <div class="vs-card__content output-general-body">
+                    <!-- KPIs executivos (grid horizontal) -->
+                    <div class="output-general-kpi-exec-grid" data-i18n-aria-label="output_aria_general_exec_kpis" aria-label="KPIs executivos do bloco geral">
+                      <div class="output-exec-kpi output-exec-kpi--occupancy">
+                        <div class="output-exec-kpi-label">
+                          <span data-i18n="output_exec_occupancy">Taxa de ocupação</span>
+                          <span class="help-icon" data-help-key="generalRobotOccupancyRate" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </div>
+                        <div class="output-exec-kpi-value-row">
+                          <div class="output-exec-kpi-value output-exec-occupancy-value" id="rt-occupancyPct">—</div>
+                          <span class="output-exec-kpi-indicator" id="rt-okBadge" aria-hidden="true"></span>
+                        </div>
+                      </div>
+
+                      <div class="output-exec-kpi output-exec-kpi--accum">
+                        <div class="output-exec-kpi-label">
+                          <span data-i18n="output_exec_can_clear_accum">Limpa acúmulo?</span>
+                          <span class="help-icon" data-help-key="canClearAccumulation" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </div>
+                        <div class="output-exec-kpi-value-row">
+                          <div class="output-exec-kpi-value" id="rt-accumBadge">—</div>
+                        </div>
+                      </div>
+
+                      <div class="output-exec-kpi">
+                        <div class="output-exec-kpi-label">
+                          <span data-i18n="output_exec_cycles_per_min">Ciclos/min</span>
+                          <span class="help-icon" data-help-key="generalCyclesPerMinute" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </div>
+                        <div class="output-exec-kpi-value" id="rt-cyclesPerMin">—</div>
+                      </div>
+
+                      <div class="output-exec-kpi">
+                        <div class="output-exec-kpi-label">
+                          <span data-i18n="output_exec_required_time">Tempo necessário</span>
+                          <span class="help-icon" data-help-key="generalRequiredCycleS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </div>
+                        <div class="output-exec-kpi-value">
+                          <span id="gen-requiredCycleS">—</span><span class="output-exec-kpi-unit"> s</span>
+                        </div>
+                      </div>
+
+                      <div class="output-exec-kpi">
+                        <div class="output-exec-kpi-label">
+                          <span data-i18n="output_exec_robot_time">Tempo do robô</span>
+                          <span class="help-icon" data-help-key="generalAvailableCycleS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </div>
+                        <div class="output-exec-kpi-value">
+                          <span id="gen-availableCycleS">—</span><span class="output-exec-kpi-unit"> s</span>
+                        </div>
+                      </div>
+
+                      <div class="output-exec-kpi">
+                        <div class="output-exec-kpi-label">
+                          <span data-i18n="output_exec_margin">Margem disponível</span>
+                          <span class="help-icon" data-help-key="generalMarginS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                        </div>
+                        <div class="output-exec-kpi-value">
+                          <span id="gen-marginCycleS">—</span><span class="output-exec-kpi-unit"> s</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Gráfico secundário (aparece no final) -->
+                    <div class="output-general-chart-secondary">
+                      <div class="output-chart-box" data-i18n-aria-label="output_aria_general_chart" aria-label="Visualização comparativa">
+                        <div class="output-chart-box-inner" id="general-chart">
+                          <div class="output-chart-box-placeholder" id="output-chart-line-label">
+                            <span data-i18n="output_general_chart_placeholder">Comparativo entre tempo necessário e tempo do robô por linha</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+                </section>
+
+                <!-- BLOCO 3 — Análise individual por linha (overview técnico) -->
+                <section class="output-lines-overview" data-i18n-aria-label="output_aria_lines_overview" aria-label="Análise individual por linha">
+                  <div class="output-lines-grid" id="output-lines-grid"></div>
+                </section>
+                
+                <!-- Bloco 4: Matriz de Viabilidade -->
+                <section class="panel feasibility-matrix-section">
+                  <header class="panel-header panel-header--row">
+                    <h2 class="panel-title" data-i18n="feasibility_matrix_title">Matriz de Viabilidade Técnico-Operacional</h2>
+                  </header>
+                  <div class="panel-body">
+                    <p class="panel-description" data-i18n="feasibility_matrix_desc">Esta análise testa cada receita individualmente contra cada linha configurada para verificar a compatibilidade técnica isolada.</p>
+                    <div class="feasibility-matrix-container" id="feasibility-matrix-container">
+                      <div id="feasibility-matrix-grid" class="fm-grid">
+                        <!-- JS will render the Card Matrix here -->
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </section>
+          </section>
+        </div>
+      </section>
+
+      <!-- OUTPUTS VIEW -->
+      <section id="outputs-view" class="view" aria-labelledby="tab-outputs" hidden>
+        <!-- Indicador de status -->
+        <section class="panel panel--highlight hero-card">
+          <header class="panel-header panel-header--row">
+            <h2 class="panel-title" data-i18n="hero_title">Robot occupancy / Status</h2>
+          </header>
+          <div class="kpi-hero">
+            <div class="kpi-main">
+              <div class="kpi-label kpi-label--with-help">
+                <span data-i18n="hero_occupancy_label">Robot occupancy rate</span>
+                <span class="help-icon help-icon--tiny" data-help-key="robotOccupancyRate" data-i18n-aria-label="tooltip_helpTitle">?</span>
+              </div>
+              <div class="kpi-value" id="out-robot-occupancy">— %</div>
+              <div class="kpi-status-row">
+                <span class="kpi-status-label" data-i18n="hero_status_label">Status</span>
+                <span class="help-icon help-icon--tiny" data-help-key="occupancyVisualStatus" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                <span class="indicator-main-status-badge status-badge" id="out-status" aria-hidden="true"></span>
+              </div>
+            </div>
+
+            <div class="kpi-side">
+              <div class="kpi-mini">
+                <div class="kpi-mini-label kpi-label--with-help">
+                  <span data-i18n="hero_palletsHour">Pallets/hour</span>
+                  <span class="help-icon help-icon--tiny" data-help-key="palletsPerHour" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                </div>
+                <div class="kpi-mini-value" id="out-kpi-palletsPerHour">—</div>
+              </div>
+              <div class="kpi-mini">
+                <div class="kpi-mini-label kpi-label--with-help">
+                  <span data-i18n="hero_avgCycle">Average cycle time</span>
+                  <span class="help-icon help-icon--tiny" data-help-key="averageCycleTimeS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                </div>
+                <div class="kpi-mini-value" id="out-kpi-averageCycleTimeS">—</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bloco 1: Production data -->
+        <section class="panel">
+          <header class="panel-header">
+            <h2 class="panel-title" data-i18n="outputs_prod_title">Production data</h2>
+          </header>
+          <div class="panel-body">
+            <table class="kpi-table">
+              <tbody>
+                <tr>
+                  <th>
+                    <span data-i18n="label_production">Production (cx/min)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="productionBpm" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-productionBpm">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="label_boxesPerLayer">Boxes per layer</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="boxesPerLayer" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-boxesPerLayer">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="label_layersPerPallet">Layers per pallet</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="layersPerPallet" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-layersPerPallet">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="label_picksPerLayer">Quantity of picks (picks/layer)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="picksPerLayer" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-picksPerLayer">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="outputs_slipBottom_short">Slip Sheet on the bottom</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="slipSheetBottom" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-slipSheetBottom">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="outputs_slipBetween_short">Slip Sheet between layers</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="slipSheetBetweenLayers" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-slipSheetBetweenLayers">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="outputs_palletPick_short">Pallet pick</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="palletPick" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-palletPick">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Bloco 2: Fixed times -->
+        <section class="panel">
+          <header class="panel-header">
+            <h2 class="panel-title" data-i18n="outputs_fixed_title">Fixed times</h2>
+          </header>
+          <div class="panel-body">
+            <table class="kpi-table">
+              <tbody>
+                <tr>
+                  <th>
+                    <span data-i18n="label_cyclePick">Cycle time/pick (s)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="cycleTimePickS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-cycleTimePickS">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="label_cycleSlip">Cycle time/slip sheet (s)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="cycleTimeSlipSheetS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-cycleTimeSlipSheetS">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="label_cyclePallet">Cycle time/pallet (s)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="cycleTimePalletS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-cycleTimePalletS">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Bloco 3: Results -->
+        <section class="panel results-card">
+          <header class="panel-header">
+            <h2 class="panel-title results-title" data-i18n="outputs_results_title">Results</h2>
+          </header>
+          <div class="panel-body">
+            <table class="kpi-table">
+              <tbody>
+                <tr class="results-group-start">
+                  <th>
+                    <span data-i18n="res_totalBoxes">Total boxes on the pallet</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="totalBoxesOnPallet" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-totalBoxesOnPallet">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="res_picksPallet">Pick/pallet</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="picksPerPallet" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-picksPerPallet">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="res_gap">Gap between boxes (s)</span>
+                    <span class="help-icon" data-help-key="gapBetweenBoxesS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-gapBetweenBoxesS">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="res_boxesCycle">Boxes number/cycle</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="boxesPerCycle" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-boxesPerCycle">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="res_totalCyclePallet">Total cycle/pallet</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="totalCyclesPerPallet" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-totalCyclesPerPallet">—</td>
+                </tr>
+                <tr class="results-group-start">
+                  <th>
+                    <span data-i18n="res_cyclePicks">Total cycle time/picks (s)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="totalCycleTimePicksS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-totalCycleTimePicksS">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="res_cycleSlip">Total cycle time/slip sheet (s)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="totalCycleTimeSlipSheetS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-totalCycleTimeSlipSheetS">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="res_cyclePallets">Total cycle time/pallets (s)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="totalCycleTimePalletsS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-totalCycleTimePalletsS">—</td>
+                </tr>
+                <tr class="results-row--emphasis">
+                  <th>
+                    <span data-i18n="res_totalStacking">Total stacking time (s)</span>
+                    <span class="help-icon" data-help-key="totalStackingTimeRobotS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-totalStackingTimeRobotS">—</td>
+                </tr>
+                <tr class="results-group-start">
+                  <th>
+                    <span data-i18n="res_accum_exchange">Accumulation time to pallet exchange (s)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="accumulationTimeToPalletExchangeS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-accumulationTimeToPalletExchangeS">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="res_prod_slipAccum">Product number in the accumulation/slip sheet applying</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="productNumberInSlipAccumulation" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-productNumberInSlipAccumulation">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="res_cycles_emptySlip">Cycles number to empty the slip sheet accumulation</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="cyclesToEmptySlipAccumulation" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-cyclesToEmptySlipAccumulation">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="res_prod_palletAccum">Products number in the accumulation/pallet exchange</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="productsNumberInPalletAccumulation" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-productsNumberInPalletAccumulation">—</td>
+                </tr>
+                <tr>
+                  <th>
+                    <span data-i18n="res_cycles_emptyPallet">Cycles number to empty the accumulation (pallet)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="cyclesToEmptyPalletAccumulation" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-cyclesToEmptyPalletAccumulation">—</td>
+                </tr>
+                <tr class="results-row--emphasis results-group-start">
+                  <th>
+                    <span data-i18n="res_totalTimePalletStack">Total time of pallet stacking (s)</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="totalTimeOfPalletStackingS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-totalTimeOfPalletStackingS">—</td>
+                </tr>
+                <tr class="results-row--emphasis">
+                  <th>
+                    <span data-i18n="res_robotOcc">Robot occupancy rate</span>
+                    <span class="help-icon" data-help-key="robotOccupancyRate" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-robotOccupancyRate">—</td>
+                </tr>
+                <tr class="results-row--emphasis">
+                  <th>
+                    <span data-i18n="res_cyclesMin">Cycles number/minute</span>
+                    <span class="help-icon help-icon--tiny" data-help-key="cyclesNumberPerMinute" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-cyclesNumberPerMinute">—</td>
+                </tr>
+                <tr class="results-row--emphasis">
+                  <th>
+                    <span data-i18n="res_avgCycleS">Average cycle time (s)</span>
+                    <span class="help-icon" data-help-key="averageCycleTimeS" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-averageCycleTimeS">—</td>
+                </tr>
+                <tr class="results-row--emphasis">
+                  <th>
+                    <span data-i18n="res_palletsHour">Pallets/hour</span>
+                    <span class="help-icon" data-help-key="palletsPerHour" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </th>
+                  <td id="out-palletsPerHour">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+      </section>
+
+      <!-- HELP VIEW -->
+      <section id="help-view" class="view" data-i18n-aria-label="tabs_help" aria-label="HELP" hidden>
+        <div class="help-view-bar">
+          <button type="button" class="help-back-btn" id="cycle-timer-help-back" data-i18n-aria-label="help_back_aria">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            <span data-i18n="help_back">Voltar</span>
+          </button>
+        </div>
+        <div class="help-container"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="engine.js"></script>
+  <script src="storage.js"></script>
+  <script src="theme.js"></script>
+  <script src="i18n.js"></script>
+  <script src="help-data.js"></script>
+  <script src="ui-help.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="insights-evaluator.js"></script>
+  <script src="ui-insights-toast.js"></script>
+  <script src="ui-outputs.js"></script>
+  <script src="ui-feasibility.js"></script>
+  <script src="ui-inputs.js"></script>
+  <script src="ui-help-page.js"></script>
+  <script src="scenario-pdf.js"></script>
+  <script src="scenario-io.js"></script>
+  <script src="app.js"></script>
+  <script src="ui-header-settings.js"></script>
+</body>
+</html>
