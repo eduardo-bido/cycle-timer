@@ -225,7 +225,7 @@ html[data-theme="dark"] #theme-toggle .theme-icon--sun {
   box-shadow: inset 0 0 0 2px var(--vs-focus-ring);
 }
 
-/* Dark mode: tipografia base; demais superfícies em blocos html[data-theme="dark"] + --vs-* */
+/* Dark mode: tipografia base; demais superfÃ­cies em blocos html[data-theme="dark"] + --vs-* */
 html[data-theme="dark"] body {
   background: var(--vs-bg);
   color: var(--vs-text);
@@ -259,7 +259,7 @@ html[data-theme="dark"] body {
 }
 
 /* Compat: app.js usa .app-tab para bind e .app-tab--active para estado */
-/* .app-tab existe apenas para JS bind; estilos são herdados de .tab-button */
+/* .app-tab existe apenas para JS bind; estilos sÃ£o herdados de .tab-button */
 
 .app-main {
   padding-bottom: 24px;
@@ -880,7 +880,7 @@ textarea:focus,
   border: 1px solid transparent;
 }
 
-/* Cores por Taxa de ocupação (somente UI, sem texto) */
+/* Cores por Taxa de ocupaÃ§Ã£o (somente UI, sem texto) */
 .status-badge.occ--good {
   background: rgba(47, 133, 90, 0.14);
   border-color: rgba(47, 133, 90, 0.35);
@@ -1134,7 +1134,7 @@ textarea:focus,
   color: #475467;
 }
 
-/* Responsividade básica */
+/* Responsividade bÃ¡sica */
 @media (max-width: 900px) {
   .grid-3 {
     grid-template-columns: 1fr 1fr;
@@ -1315,7 +1315,7 @@ textarea:focus,
 }
 
 .app-main {
-  /* ocupa a altura e permite scroll interno quando necessário */
+  /* ocupa a altura e permite scroll interno quando necessÃ¡rio */
   flex: 1;
   overflow: auto;
 }
@@ -1323,7 +1323,7 @@ textarea:focus,
 #inputs-view .io-layout {
   /* Phase 4: outputs dominantes */
   grid-template-columns: 38% 62%;
-  gap: 12px; /* ainda menor espaço entre os dois cards */
+  gap: 12px; /* ainda menor espaÃ§o entre os dois cards */
 }
 
 @media (max-width: 1240px) {
@@ -1346,7 +1346,7 @@ textarea:focus,
   }
 }
 
-/* Inputs: leve aumento de presença e contraste */
+/* Inputs: leve aumento de presenÃ§a e contraste */
 #inputs-view label,
 #inputs-view .field-label {
   color: #475467;
@@ -1373,12 +1373,12 @@ textarea:focus,
   box-shadow: 0 0 0 2px var(--vs-focus-ring);
 }
 
-/* Separação entre blocos: mais cadência, menos “cards repetidos” */
+/* SeparaÃ§Ã£o entre blocos: mais cadÃªncia, menos â€œcards repetidosâ€ */
 #inputs-view .inputs-card {
   margin-bottom: 14px;
 }
 
-/* Painel direito: mais “referência visual” e sticky robusto */
+/* Painel direito: mais â€œreferÃªncia visualâ€ e sticky robusto */
 #inputs-view .validation-panel {
   top: 18px;
   max-height: calc(100vh - 96px);
@@ -1407,7 +1407,7 @@ textarea:focus,
   color: #667085;
 }
 
-/* Valores mais fortes (especialmente no “Resultado principal”) */
+/* Valores mais fortes (especialmente no â€œResultado principalâ€) */
 #inputs-view .validation-block:first-of-type .validation-value {
   font-size: 20px;
   font-weight: 900;
@@ -1418,7 +1418,7 @@ textarea:focus,
   font-size: 24px;
 }
 
-/* Status impossível ignorar, sem exagero */
+/* Status impossÃ­vel ignorar, sem exagero */
 #inputs-view #rt-okBadge.status-badge {
   height: 36px;
   padding: 0 14px;
@@ -1426,7 +1426,7 @@ textarea:focus,
   font-weight: 900;
 }
 
-/* Mobile: painel desce, sticky desliga (já existia) */
+/* Mobile: painel desce, sticky desliga (jÃ¡ existia) */
 
 /* ===========================
    INPUTS Phase 4: compact config panel (left)
@@ -1531,7 +1531,7 @@ textarea:focus,
   background: #ffffff;
 }
 
-/* Cabeçalho mais “tool-like”, menos genérico */
+/* CabeÃ§alho mais â€œtool-likeâ€, menos genÃ©rico */
 #inputs-view .panel-header {
   align-items: baseline;
 }
@@ -1554,7 +1554,7 @@ textarea:focus,
   gap: 16px;
 }
 
-/* Labels: técnicas, legíveis, com hierarquia */
+/* Labels: tÃ©cnicas, legÃ­veis, com hierarquia */
 #inputs-view label,
 #inputs-view .field-label {
   font-size: 11.5px;
@@ -1564,7 +1564,7 @@ textarea:focus,
   margin-bottom: 7px;
 }
 
-/* Inputs: mais “precisos” e menos cara de template */
+/* Inputs: mais â€œprecisosâ€ e menos cara de template */
 #inputs-view input,
 #inputs-view select,
 #inputs-view textarea,
@@ -1605,7 +1605,7 @@ textarea:focus,
   box-shadow: 0 0 0 2px var(--vs-focus-ring);
 }
 
-/* Help icon nos inputs: discreto e técnico */
+/* Help icon nos inputs: discreto e tÃ©cnico */
 #inputs-view .help-icon {
   width: 15px;
   height: 15px;
@@ -1622,7 +1622,7 @@ textarea:focus,
   display: grid;
   /* 5/16 vs 9/16 (fixo) com limites elegantes */
   grid-template-columns: clamp(320px, 31.25vw, 420px) 1fr;
-  column-gap: 6px; /* metade da distância anterior entre Entrada e Saída */
+  column-gap: 6px; /* metade da distÃ¢ncia anterior entre Entrada e SaÃ­da */
   row-gap: 0;
   align-items: start;
 }
@@ -1641,7 +1641,7 @@ textarea:focus,
 }
 
 /* ===========================
-   Phase 4 FIX — Sidebar (left)
+   Phase 4 FIX â€” Sidebar (left)
    =========================== */
 
 #inputs-view .sidebar {
@@ -1716,7 +1716,7 @@ textarea:focus,
   grid-template-columns: repeat(2, 1fr);
 }
 
-/* Configuração do robô e tempos por linha */
+/* ConfiguraÃ§Ã£o do robÃ´ e tempos por linha */
 .robot-config-row {
   margin-bottom: 10px;
 }
@@ -1737,19 +1737,19 @@ textarea:focus,
 
 .robot-times-grid {
   display: grid;
-  /* Cada item visível ocupa fração igual da largura disponível.
-     A quantidade de colunas efetiva é o número de elementos .is-visible. */
+  /* Cada item visÃ­vel ocupa fraÃ§Ã£o igual da largura disponÃ­vel.
+     A quantidade de colunas efetiva Ã© o nÃºmero de elementos .is-visible. */
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
   column-gap: 6px;
 }
 
-/* Inputs de tempo por linha: mais compactos para até 6 colunas */
+/* Inputs de tempo por linha: mais compactos para atÃ© 6 colunas */
 #inputs-view .robot-times-grid--inputs .field-input {
   height: 26px;
   padding: 0 6px;
-  font-size: 12px; /* volta para leitura confortável */
-  border-radius: 4px; /* mais quadrado que o padrão global */
+  font-size: 12px; /* volta para leitura confortÃ¡vel */
+  border-radius: 4px; /* mais quadrado que o padrÃ£o global */
 }
 
 .robot-times-grid--header {
@@ -2062,7 +2062,7 @@ html[data-theme="dark"] .sheet-cell.sheet-cell--gated {
   font-size: 13px;
 }
 
-/* Dark mode — overlay receitas (tokens) */
+/* Dark mode â€” overlay receitas (tokens) */
 html[data-theme="dark"] .sheet-overlay__panel {
   background: var(--vs-surface-elevated);
   border-color: var(--vs-border);
@@ -2108,7 +2108,7 @@ html[data-theme="dark"] .sheet-row--active td {
 }
 
 /* ===========================
-   Phase 4 FIX — Decision board (right)
+   Phase 4 FIX â€” Decision board (right)
    =========================== */
 
 #inputs-view .decision .validation-panel {
@@ -2305,7 +2305,7 @@ html[data-theme="dark"] .sheet-row--active td {
   min-width: 0;
 }
 
-/* Cardzão de output (dominante) */
+/* CardzÃ£o de output (dominante) */
 #inputs-view .output-mega {
   padding: 0;
   overflow: hidden;
@@ -2323,7 +2323,7 @@ html[data-theme="dark"] .sheet-row--active td {
   border-bottom: none;
 }
 
-/* Header operacional (esquerda: seleção / direita: KPIs) */
+/* Header operacional (esquerda: seleÃ§Ã£o / direita: KPIs) */
 #inputs-view .output-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -2492,7 +2492,7 @@ html[data-theme="dark"] .sheet-row--active td {
   white-space: nowrap;
 }
 
-/* Visualização (gráfico placeholder) */
+/* VisualizaÃ§Ã£o (grÃ¡fico placeholder) */
 #inputs-view .output-general {
   padding: 4px 18px 6px 18px;
   margin: 0;
@@ -2622,10 +2622,10 @@ html[data-theme="dark"] .sheet-row--active td {
   margin-left: 2px;
 }
 
-/* ===== Geral executiva (KPIs executivos + gráfico secundário) ===== */
+/* ===== Geral executiva (KPIs executivos + grÃ¡fico secundÃ¡rio) ===== */
 #inputs-view .output-general-kpi-exec-grid {
   display: grid;
-  /* 6 colunas para permitir que a ocupação ocupe 2 sem quebrar o layout */
+  /* 6 colunas para permitir que a ocupaÃ§Ã£o ocupe 2 sem quebrar o layout */
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
   align-items: stretch;
@@ -2714,7 +2714,7 @@ html[data-theme="dark"] .sheet-row--active td {
   line-height: 1.25;
 }
 
-/* Cores do número (Taxa de ocupação) */
+/* Cores do nÃºmero (Taxa de ocupaÃ§Ã£o) */
 #inputs-view .output-exec-occupancy-value.occ--good {
   color: #2f855a;
 }
@@ -2734,7 +2734,7 @@ html[data-theme="dark"] .sheet-row--active td {
   flex: 0 0 auto;
   display: inline-block;
   order: -1;
-  /* Esconde o texto que o JS escreve, mantendo acessibilidade via aria-hidden se necessário */
+  /* Esconde o texto que o JS escreve, mantendo acessibilidade via aria-hidden se necessÃ¡rio */
   color: transparent;
   font-size: 0;
 }
@@ -2852,7 +2852,7 @@ html[data-theme="dark"] .sheet-row--active td {
   line-height: 1.4;
 }
 
-/* Análise individual por linha (overview técnico abaixo do "Geral") */
+/* AnÃ¡lise individual por linha (overview tÃ©cnico abaixo do "Geral") */
 #inputs-view .output-lines-overview {
   padding: 2px 18px 16px 18px;
   margin-top: 0;
@@ -2918,7 +2918,7 @@ html[data-theme="dark"] .sheet-row--active td {
   gap: 7px;
 }
 
-/* TOPO (resultado principal) por linha — faixa horizontal sem caixas */
+/* TOPO (resultado principal) por linha â€” faixa horizontal sem caixas */
 #inputs-view .output-line-topband {
   display: flex;
   align-items: stretch;
@@ -3027,7 +3027,7 @@ html[data-theme="dark"] .sheet-row--active td {
   background: #c53030;
 }
 
-/* Faixa KPI por linha: densidade conforme quantidade de linhas no cenário (classe no grid) */
+/* Faixa KPI por linha: densidade conforme quantidade de linhas no cenÃ¡rio (classe no grid) */
 #inputs-view .output-lines-grid--kpis-compact .output-line-topband {
   padding: 5px 0 6px 0;
 }
@@ -3229,13 +3229,13 @@ html[data-theme="dark"] #inputs-view .output-line-section--identity .output-line
   color: var(--vs-text);
 }
 
-/* Bloco técnico: menor destaque */
+/* Bloco tÃ©cnico: menor destaque */
 #inputs-view .output-line-card-body .output-line-section-title {
   font-size: 9px;
   letter-spacing: 0.1em;
 }
 
-/* Feed técnico */
+/* Feed tÃ©cnico */
 #inputs-view .output-feed {
   padding: 8px 18px 18px 18px;
   display: flex;
@@ -3459,7 +3459,7 @@ html[data-theme="dark"] #inputs-view .output-line-section--identity .output-line
   color: #111827;
 }
 
-/* Separação sutil entre grupos lógicos (sem reordenar) */
+/* SeparaÃ§Ã£o sutil entre grupos lÃ³gicos (sem reordenar) */
 .results-card .results-group-start th,
 .results-card .results-group-start td {
   border-top: 1px solid #e6ebf2;
@@ -3520,7 +3520,7 @@ html[data-theme="dark"] #inputs-view .output-line-section--identity .output-line
   max-width: 560px;
 }
 
-/* Fase de acabamento: ocultar apenas a aba SAÍDAS */
+/* Fase de acabamento: ocultar apenas a aba SAÃDAS */
 .app-tab[data-tab="outputs"] {
   display: none;
 }
@@ -3554,14 +3554,14 @@ html[data-theme="dark"] #inputs-view .output-line-section--identity .output-line
 }
 
 /* ===========================
-   INPUTS — scroll travado no viewport
+   INPUTS â€” scroll travado no viewport
    Objetivo: scroll apenas dentro dos 2 cards (sidebar e outputs)
    =========================== */
 
 html,
 body {
   height: 100%;
-  overflow: hidden; /* trava scroll da página */
+  overflow: hidden; /* trava scroll da pÃ¡gina */
 }
 
 .main-shell {
@@ -3597,7 +3597,7 @@ body {
   align-items: stretch;
 }
 
-/* Card esquerdo: sidebar inteira é um card scrollável */
+/* Card esquerdo: sidebar inteira Ã© um card scrollÃ¡vel */
 #inputs-view .sidebar {
   height: 100%;
   overflow: auto;
@@ -3622,11 +3622,11 @@ body {
 #inputs-view .output-scroll {
   flex: 1;
   min-height: 0;
-  overflow: auto; /* um único scroll começa em "Geral" */
+  overflow: auto; /* um Ãºnico scroll comeÃ§a em "Geral" */
 }
 
 #inputs-view .output-feed {
-  /* feed agora vive dentro de .output-scroll; não deve criar scroll próprio */
+  /* feed agora vive dentro de .output-scroll; nÃ£o deve criar scroll prÃ³prio */
   overflow: visible;
 }
 
@@ -3695,24 +3695,24 @@ html[data-theme="dark"] #help-view .help-view-bar {
   opacity: 0.9;
 }
 
-/* Ajuste geral de raio dos cards principais (evitar “arredondado demais”) */
+/* Ajuste geral de raio dos cards principais (evitar â€œarredondado demaisâ€) */
 #inputs-view .sidebar-section,
 .results-card,
 .panel {
   border-radius: 6px;
 }
 
-/* Kicker discreto (ENTRADA / SAÍDA) */
+/* Kicker discreto (ENTRADA / SAÃDA) */
 .io-kicker {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #98a2b3;
-  margin: 2px 0 10px 2px; /* acima das seções, sem chamar atenção */
+  margin: 2px 0 10px 2px; /* acima das seÃ§Ãµes, sem chamar atenÃ§Ã£o */
 }
 
-/* no card de SAÍDA, respeita o sticky header (fica acima dele) */
+/* no card de SAÃDA, respeita o sticky header (fica acima dele) */
 #inputs-view .output-mega > .io-kicker {
   padding: 8px 18px 0 18px;
   margin: 0;
@@ -4678,7 +4678,7 @@ textarea,
   color: var(--vs-bad);
 }
 
-/* Painel direito: composição contínua — o card é o shell interno (.output-general-card) */
+/* Painel direito: composiÃ§Ã£o contÃ­nua â€” o card Ã© o shell interno (.output-general-card) */
 #inputs-view .output-scroll .output-general {
   background: transparent;
   border: none;
@@ -4769,7 +4769,7 @@ html[data-theme="dark"] #inputs-view .output-line-recipe-item:focus-within {
   box-shadow: 0 0 0 2px rgba(192, 255, 0, 0.16);
 }
 
-/* Dark refinement — Outputs hierarchy and readability */
+/* Dark refinement â€” Outputs hierarchy and readability */
 html[data-theme="dark"] #inputs-view .output-general-card {
   background: color-mix(in srgb, var(--vs-surface) 72%, var(--vs-surface-elevated) 28%);
   border-color: var(--vs-border);
@@ -4848,7 +4848,7 @@ html[data-theme="dark"] #outputs-view td.output-cell--clearance-fail {
   color: #ff8a80;
 }
 
-/* Dark hardening — neutraliza resíduos de light mode com alta especificidade */
+/* Dark hardening â€” neutraliza resÃ­duos de light mode com alta especificidade */
 html[data-theme="dark"] #inputs-view .sidebar input,
 html[data-theme="dark"] #inputs-view .sidebar select,
 html[data-theme="dark"] #inputs-view .sidebar textarea,
@@ -4921,7 +4921,7 @@ html[data-theme="dark"] #inputs-view .output-header {
 }
 
 /* ===========================
-   Help view — desktop-first consulta
+   Help view â€” desktop-first consulta
    =========================== */
 #help-view .help-container {
   flex: 1 1 auto;
@@ -5366,7 +5366,7 @@ html[data-theme="dark"] #inputs-view .output-header {
 }
 
 #help-view .help-flow-chevron::before {
-  content: "→";
+  content: "â†’";
 }
 
 @media (max-width: 720px) {
@@ -5894,7 +5894,7 @@ html[data-theme="dark"] .insight-toast-close {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 600px; /* Garante que não colapse totalmente em telas minúsculas */
+  min-width: 600px; /* Garante que nÃ£o colapse totalmente em telas minÃºsculas */
 }
 
 .fm-row {
@@ -5960,12 +5960,12 @@ html[data-theme="dark"] .insight-toast-close {
 }
 
 .fm-card {
-  flex: 1; /* Modularidade: divide o espaço igualmente */
+  flex: 1; /* Modularidade: divide o espaÃ§o igualmente */
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 8px 12px;
-  border-radius: 20px; /* Estilo Pílula */
+  border-radius: 20px; /* Estilo PÃ­lula */
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 70px;
@@ -6010,7 +6010,7 @@ html[data-theme="dark"] .insight-toast-close {
 }
 .fm-card--bad .fm-card-value { color: #991b1b; }
 
-/* --- SELEÇÃO --- */
+/* --- SELEÃ‡ÃƒO --- */
 
 .fm-card--selected {
   outline: 2px solid #a3d900;
@@ -6138,4 +6138,381 @@ html[data-theme="dark"] .vs-card__action-btn:hover {
 .txt-fail {
   color: var(--vs-danger, #ef4444) !important;
   font-weight: 600;
+}
+
+/* ===========================
+   Welcome Modal
+   =========================== */
+.welcome-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-modal[hidden] {
+  display: none !important;
+}
+
+.welcome-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+html[data-theme="dark"] .welcome-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.welcome-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html[data-theme="dark"] .welcome-dialog {
+  background: var(--vs-surface-elevated, #1e293b);
+  border: 1px solid var(--vs-border, #334155);
+}
+
+.welcome-brand {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.welcome-logo {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+html[data-theme="dark"] .welcome-subtitle {
+  color: #94a3b8;
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* BotÃµes com pesos visuais IGUAIS conforme solicitado */
+.welcome-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 52px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="dark"] .welcome-btn {
+  background: var(--vs-surface-muted, #0f172a);
+  border-color: var(--vs-border, #334155);
+  color: #f8fafc;
+}
+
+.welcome-btn svg {
+  color: #64748b;
+  transition: color 0.2s ease;
+}
+
+html[data-theme="dark"] .welcome-btn svg {
+  color: #94a3b8;
+}
+
+.welcome-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="dark"] .welcome-btn:hover {
+  background: var(--vs-surface-hover, #1e293b);
+  border-color: #475569;
+}
+
+.welcome-btn:hover svg {
+  color: var(--vs-primary, #10b981);
+}
+
+.welcome-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--vs-focus-ring, rgba(16, 185, 129, 0.3));
+  border-color: var(--vs-primary, #10b981);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* -----------------------------------------------------------
+
+/* ═══════════════════════════════════════════════════════════
+   HEATMAP DE LIMPEZA DE ACÚMULO
+   ═══════════════════════════════════════════════════════════ */
+
+.accum-heatmap-section { margin-top: 24px; }
+.accum-heatmap-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.ah-wrapper {
+  min-width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.ah-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.ah-corner {
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 8px;
+  text-align: center;
+  min-width: 100px;
+  height: 48px;
+  position: sticky;
+  left: 0;
+  top: 0;
+  z-index: 3;
+}
+
+.ah-corner-labels {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  line-height: 1.2;
+}
+
+.ah-corner-sep { font-size: 14px; opacity: 0.4; line-height: 1; }
+
+.ah-col-header {
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 8px 12px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.ah-col-header--active { color: #6366f1; font-weight: 700; }
+
+.ah-row-label {
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-align: right;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.ah-row-label--active { color: #6366f1; font-weight: 700; }
+
+.ah-cell {
+  text-align: center;
+  min-width: 40px;
+  height: 40px;
+  border-right: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  transition: filter 0.12s ease;
+  position: relative;
+}
+
+.ah-cell:hover { filter: brightness(1.12); z-index: 1; }
+
+.ah-cell-icon { font-size: 14px; font-weight: 700; pointer-events: none; }
+
+.ah-cell--ok   { background: #16a34a; color: #fff; }
+.ah-cell--fail { background: #dc2626; color: #fff; }
+.ah-cell--warn { background: #d97706; color: #fff; }
+.ah-cell--na   { background: #e2e8f0; color: #94a3b8; }
+
+.ah-cell--diagonal { outline: 2px solid rgba(255,255,255,0.5); outline-offset: -2px; }
+.ah-cell--selected { outline: 3px solid #6366f1; outline-offset: -3px; z-index: 2; }
+
+/* dark mode */
+html[data-theme="dark"] .ah-corner,
+html[data-theme="dark"] .ah-row-label,
+html[data-theme="dark"] .ah-col-header { background: #1e293b; border-color: #334155; }
+html[data-theme="dark"] .ah-wrapper { border-color: #334155; }
+html[data-theme="dark"] .ah-corner-labels,
+html[data-theme="dark"] .ah-col-header,
+html[data-theme="dark"] .ah-row-label { color: #94a3b8; }
+html[data-theme="dark"] .ah-col-header--active,
+html[data-theme="dark"] .ah-row-label--active { color: #818cf8; }
+html[data-theme="dark"] .ah-cell--na   { background: #1e293b; color: #475569; }
+html[data-theme="dark"] .ah-cell--ok   { background: #15803d; }
+html[data-theme="dark"] .ah-cell--fail { background: #b91c1c; }
+html[data-theme="dark"] .ah-cell--warn { background: #b45309; }
+
+/* ─── TERMÔMETRO DE SATURAÇÃO (3+ LINHAS) ───────────────────────────────── */
+.ah-thermometer-container {
+  padding: 1.5rem;
+  background: var(--surface-1);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-top: 1rem;
+}
+
+.ah-thermo-bar-wrapper {
+  height: 48px;
+  background: var(--surface-3);
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 1.5rem;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+}
+
+html[data-theme="dark"] .ah-thermo-bar-wrapper {
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.ah-thermo-bar-fill {
+  height: 100%;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease;
+}
+
+.ah-thermo-bar-text {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.ah-thermo-verdict {
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  border-left: 4px solid transparent;
+}
+
+.ah-thermo-verdict--ok {
+  color: var(--vs-success, #10b981);
+  background: rgba(16, 185, 129, 0.1);
+  border-left-color: var(--vs-success, #10b981);
+}
+
+.ah-thermo-verdict--fail {
+  color: var(--vs-danger, #ef4444);
+  background: rgba(239, 68, 68, 0.1);
+  border-left-color: var(--vs-danger, #ef4444);
+}
+
+.ah-thermo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.ah-thermo-list li {
+  background: var(--surface-2);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  font-size: 0.95rem;
+}
+
+.ah-thermo-list li span:first-child {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-right: 0.5rem;
+}
+
+.ah-thermo-list li strong {
+  flex: 1;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ah-thermo-weight {
+  font-weight: 700;
+  color: var(--accent-primary);
+  background: rgba(var(--accent-rgb), 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 0.5rem;
 }

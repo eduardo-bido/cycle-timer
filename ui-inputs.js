@@ -547,6 +547,10 @@ if (document.readyState === "loading") {
     var t = e.target;
     if (!t) return;
 
+    if (typeof window.saveScenario === "function" && typeof window.buildCycleTimerExportPayload === "function") {
+      window.saveScenario(window.buildCycleTimerExportPayload());
+    }
+
     var isRobotTime = t.id && t.id.indexOf("robot-ciclo") !== -1;
     var isRecipeCell = t.classList && t.classList.contains("sheet-cell");
 
@@ -554,6 +558,10 @@ if (document.readyState === "loading") {
       // Dispara a atualização da matriz de viabilidade
       if (typeof window.runFeasibilityMatrix === "function") {
         window.runFeasibilityMatrix();
+      }
+      // Dispara a atualização do heatmap de acúmulo multilinear
+      if (typeof window.runAccumHeatmap === "function") {
+        window.runAccumHeatmap();
       }
       
       // Se for um campo de tempo de robô, também sincroniza campos dependentes (cadeados)
@@ -688,10 +696,10 @@ function applyInputsFromState(recipe, robotTimes) {
     setValue("recipe-produtosPorCamada", recipe.boxesPerLayer);
     setValue("recipe-camadasPorPallet", recipe.layersPerPallet);
     setValue("recipe-capturasPorCamada", recipe.picksPerLayer);
-    // Reaplica mapeamento visual->estado (para manter coerência com engine)
-    setValue("recipe-slipSheetBottom", recipe.palletPick);
-    setValue("recipe-slipSheetBetweenLayers", recipe.slipSheetBottom);
-    setValue("recipe-capturasPallet", recipe.slipSheetBetweenLayers);
+    // O mapeamento visual e os IDs já batem com os nomes lógicos do DOM.
+    setValue("recipe-capturasPallet", recipe.palletPick);
+    setValue("recipe-slipSheetBottom", recipe.slipSheetBottom);
+    setValue("recipe-slipSheetBetweenLayers", recipe.slipSheetBetweenLayers);
   }
 
   if (robotTimes) {

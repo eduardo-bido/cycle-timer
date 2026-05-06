@@ -157,45 +157,11 @@
   }
 
   // ---- Inicialização das UIs ----
-  // Carrega cenário salvo, se existir
-  if (typeof loadScenario === "function") {
-    var loaded = loadScenario();
-    if (loaded) {
-      if (loaded.schemaVersion && typeof window.applyCycleTimerSnapshot === "function") {
-        // Atualiza estado de forma síncrona para que a carga inicial da UI (applyInputsFromState)
-        // já venha com os dados da primeira linha, evitando que side-effects (como sync de campos)
-        // disparem salvamentos de dados vazios sobre o snapshot válido.
-        if (loaded.scenario) {
-          var s = loaded.scenario;
-          if (Array.isArray(s.recipes)) {
-            var r1 = null;
-            for (var i = 0; i < s.recipes.length; i++) {
-              if (String(s.recipes[i].rowId) === "1") {
-                r1 = s.recipes[i];
-                break;
-              }
-            }
-            if (r1) {
-              for (var rk in r1) {
-                if (Object.prototype.hasOwnProperty.call(state.recipe, rk)) {
-                  state.recipe[rk] = r1[rk];
-                }
-              }
-            }
-          }
-          if (Array.isArray(s.lineRobotTimes) && s.lineRobotTimes.length > 0) {
-            var t1 = s.lineRobotTimes[0];
-            for (var tk in t1) {
-              if (Object.prototype.hasOwnProperty.call(state.robotTimes, tk)) {
-                state.robotTimes[tk] = t1[tk];
-              }
-            }
-          }
-          if (s.robotModel) {
-            state.robotTimes.robo = s.robotModel;
-          }
-        }
+  var loaded = typeof loadScenario === "function" ? loadScenario() : null;
 
+  function finishInitialization(useLoadedData) {
+    if (useLoadedData && loaded) {
+      if (loaded.schemaVersion && typeof window.applyCycleTimerSnapshot === "function") {
         setTimeout(function() {
           window.applyCycleTimerSnapshot(loaded);
         }, 0);
@@ -210,7 +176,16 @@
             state.robotTimes[tk] = loaded.robotTimes[tk];
           }
         }
+        if (typeof applyInputsFromState === "function") {
+          applyInputsFromState(state.recipe, state.robotTimes);
+        }
+        recomputeResults();
       }
+    } else {
+      if (typeof applyInputsFromState === "function") {
+        applyInputsFromState(state.recipe, state.robotTimes);
+      }
+      recomputeResults();
     }
   }
 
@@ -223,18 +198,55 @@
     });
   }
 
-  // Preenche os campos da aba INPUTS com o estado atual (carregado ou padrão)
-  if (typeof applyInputsFromState === "function") {
-    applyInputsFromState(state.recipe, state.robotTimes);
+  // Welcome Modal Interception
+  var welcomeModal = document.getElementById("welcome-modal");
+  var btnContinue = document.getElementById("welcome-btn-continue");
+  var btnLoad = document.getElementById("welcome-btn-load");
+  var btnNew = document.getElementById("welcome-btn-new");
+
+  function closeWelcome() {
+    if (welcomeModal) {
+      welcomeModal.setAttribute("hidden", "hidden");
+      welcomeModal.setAttribute("aria-hidden", "true");
+    }
+    setActiveTab("inputs");
   }
 
-  // Render inicial dos outputs (placeholders)
-  if (typeof renderOutputs === "function") {
-    recomputeResults();
-  }
+  if (welcomeModal && btnLoad && btnNew) {
+    welcomeModal.removeAttribute("hidden");
+    welcomeModal.removeAttribute("aria-hidden");
 
-  // Abre na aba INPUTS por padrão
-  setActiveTab("inputs");
+    if (loaded && loaded.scenario && loaded.scenario.recipes) {
+      if (btnContinue) {
+        btnContinue.removeAttribute("hidden");
+        btnContinue.addEventListener("click", function() {
+          closeWelcome();
+          finishInitialization(true);
+        });
+      }
+    }
+
+    btnNew.addEventListener("click", function() {
+       closeWelcome();
+       if (typeof window.clearScenario === "function") window.clearScenario();
+       if (typeof window.resetCycleTimerToEmpty === "function") {
+         window.resetCycleTimerToEmpty();
+       } else {
+         finishInitialization(false);
+       }
+    });
+
+    btnLoad.addEventListener("click", function() {
+      var fileInput = document.getElementById("scenario-import-file");
+      if (fileInput) fileInput.click();
+      closeWelcome();
+      // If the user cancels the file dialog, the app will just initialize empty.
+      finishInitialization(false);
+    });
+  } else {
+    finishInitialization(true);
+    setActiveTab("inputs");
+  }
 
   window.applyCycleTimerImportedCore = function (recipe, robotTimes) {
     if (recipe && typeof recipe === "object") {
@@ -251,11 +263,11 @@
         state.robotTimes[tk] = robotTimes[tk];
       }
     }
-    if (typeof saveScenario === "function") {
-      saveScenario(buildScenarioPayload());
-    }
     if (typeof applyInputsFromState === "function") {
       applyInputsFromState(state.recipe, state.robotTimes);
+    }
+    if (typeof saveScenario === "function") {
+      saveScenario(buildScenarioPayload());
     }
     recomputeResults();
   };

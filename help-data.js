@@ -349,12 +349,12 @@
       cyclesNumberPerMinute: {
         label: "Ciclos por minuto",
         description:
-          "Quantidade de ciclos por minuto exigida pela linha.",
+          "Quantidade de ciclos por minuto exigida pela linha para atender à produção.",
         formula:
-          "Total de ciclos ÷ tempo total do cenário",
+          "Total de ciclos do pallet ÷ Tempo necessário do pallet (min)",
         unit: "ciclos/min",
         interpretation:
-          "Indica a intensidade operacional da linha."
+          "Indica a intensidade operacional real da linha. Se o robô não atingir essa cadência, haverá atraso na entrega do pallet."
       },
 
       totalTimeOfPalletStackingS: {
@@ -382,12 +382,12 @@
       productNumberInSlipAccumulation: {
         label: "Produtos acumulados durante slip sheet",
         description:
-          "Estimativa de caixas que chegam durante o tempo de slip sheet.",
+          "Estimativa de caixas que chegam durante o tempo de slip sheet (incluindo a carga do pior caso de outras linhas).",
         formula:
-          "Tempo total de slip sheet ÷ intervalo entre caixas",
+          "(Tempo de 1 slip sheet + burden de outras linhas) ÷ intervalo entre caixas",
         unit: "caixas",
         interpretation:
-          "Mostra o tamanho da fila gerada nessa etapa."
+          "Mostra o tamanho da fila gerada nessa etapa. O burden considera o robô parando para atender outras linhas simultaneamente."
       },
 
       cyclesToEmptySlipAccumulation: {
@@ -398,18 +398,18 @@
           "(acúmulo ÷ remoção líquida em caixas/s) ÷ tempo de ciclo de pick",
         unit: "ciclos",
         interpretation:
-          "Remoção líquida = (caixas/ciclo ÷ tempo de pick) − (produção BPM ÷ 60). Se ≤ 0, não há como reduzir a fila (Não atende)."
+          "Remoção líquida = (caixas/ciclo ÷ tempo de pick) − (produção BPM ÷ 60). Este valor deve ser menor que a quantidade de picks disponíveis entre cada aplicação de slipsheet."
       },
 
       productsNumberInPalletAccumulation: {
         label: "Produtos acumulados na troca de pallet",
         description:
-          "Estimativa de caixas que chegam durante a troca de pallet.",
+          "Estimativa de caixas que chegam durante a troca de pallet (incluindo a carga do pior caso de outras linhas).",
         formula:
-          "Tempo de acúmulo na troca ÷ intervalo entre caixas",
+          "(Tempo de acúmulo na troca + burden de outras linhas) ÷ intervalo entre caixas",
         unit: "caixas",
         interpretation:
-          "Mostra o impacto da troca de pallet no fluxo da linha."
+          "Mostra o impacto da troca de pallet no fluxo da linha, somado ao tempo em que o robô atende outras linhas."
       },
 
       lineMaxProductsInAccumulation: {
@@ -432,6 +432,28 @@
         unit: "ciclos",
         interpretation:
           "Mesma remoção líquida do slip. Se ≤ 0, não há como reduzir a fila (Não atende)."
+      },
+
+      canClearAccumulation: {
+        label: "Limpa acúmulo?",
+        description:
+          "Indica se o robô consegue zerar a fila de acúmulo antes da próxima parada, considerando o pior caso multilinear (Modo A).",
+        formula:
+          "Acúmulo total na parada ÷ remoção líquida < janela de picks disponível",
+        unit: "",
+        interpretation:
+          "Se 'Não', a fila crescerá indefinidamente até parar a linha. O pior caso soma o tempo de pallet e slips de outras linhas."
+      },
+
+      accumHeatmap: {
+        label: "Heatmap de Limpeza de Acúmulo",
+        description:
+          "Testa as combinações de receitas para avaliar a limpeza de acúmulo no pior caso (Modo A).",
+        formula:
+          "Worst-case burden Lx = Σ pallet Ly + Σ slips Ly + 1 pick Ly",
+        unit: "",
+        interpretation:
+          "Verde significa que ambas as linhas conseguem limpar seus acúmulos mesmo que seus piores eventos ocorram simultaneamente."
       },
 
       occupancyVisualStatus: {
@@ -821,12 +843,12 @@
       cyclesNumberPerMinute: {
         label: "Cycles per minute",
         description:
-          "Cycle rate required by the line.",
+          "Number of cycles per minute required by the line to meet production.",
         formula:
-          "Total cycles ÷ total scenario time",
+          "Total cycles per pallet ÷ Required pallet time (min)",
         unit: "cycles/min",
         interpretation:
-          "Indicates how intensive the line operation is."
+          "Indicates the actual operational intensity of the line. If the robot does not reach this cadence, there will be a delay in pallet delivery."
       },
 
       totalTimeOfPalletStackingS: {
@@ -854,34 +876,34 @@
       productNumberInSlipAccumulation: {
         label: "Accumulated products during slip sheet",
         description:
-          "Estimated boxes arriving during slip sheet operations.",
+          "Estimated boxes arriving during slip sheet operations (including worst-case burden from other lines).",
         formula:
-          "Total slip sheet time ÷ gap between boxes",
+          "(Time of 1 slip sheet + other lines burden) ÷ gap between boxes",
         unit: "boxes",
         interpretation:
-          "Represents queue size generated in this stage."
+          "Represents queue size generated in this stage. Burden considers the robot stopping to serve other lines simultaneously."
       },
 
       cyclesToEmptySlipAccumulation: {
         label: "Cycles to clear accumulation (slip sheet)",
         description:
-          "Cycles to clear the queue with continuous product arrivals (net removal).",
+          "Cycles to empty the queue with continuous product arrival (net removal).",
         formula:
           "(accumulation ÷ net removal in boxes/s) ÷ pick cycle time",
         unit: "cycles",
         interpretation:
-          "Net removal = (boxes/cycle ÷ pick time) − (BPM ÷ 60). If ≤ 0, backlog cannot shrink (Cannot clear)."
+          "Net removal = (boxes/cycle ÷ pick time) − (production BPM ÷ 60). This value must be less than the picks available between each slip sheet application."
       },
 
       productsNumberInPalletAccumulation: {
         label: "Accumulated products during pallet exchange",
         description:
-          "Estimated boxes arriving during pallet exchange.",
+          "Estimated boxes arriving during pallet exchange (including worst-case burden from other lines).",
         formula:
-          "Accumulation time to pallet exchange ÷ gap between boxes",
+          "(Accumulation time to pallet exchange + other lines burden) ÷ gap between boxes",
         unit: "boxes",
         interpretation:
-          "Represents queue impact caused by pallet exchange."
+          "Represents queue impact caused by pallet exchange, added to the time the robot serves other lines."
       },
 
       lineMaxProductsInAccumulation: {
@@ -904,6 +926,28 @@
         unit: "cycles",
         interpretation:
           "Same net removal as slip. If ≤ 0, backlog cannot shrink (Cannot clear)."
+      },
+
+      canClearAccumulation: {
+        label: "Clears accumulation?",
+        description:
+          "Indicates whether the robot can empty the accumulated queue before the next stop, considering the worst-case multiline burden (Mode A).",
+        formula:
+          "Total accumulation at stop ÷ net removal < available picks window",
+        unit: "",
+        interpretation:
+          "If 'No', the queue will grow indefinitely until the line stops. The worst case adds pallet and slip times from other lines."
+      },
+
+      accumHeatmap: {
+        label: "Accumulation Clearing Heatmap",
+        description:
+          "Tests recipe combinations to evaluate accumulation clearing in the worst case (Mode A).",
+        formula:
+          "Worst-case burden Lx = Σ pallet Ly + Σ slips Ly + 1 pick Ly",
+        unit: "",
+        interpretation:
+          "Green means both lines can clear their accumulations even if their worst events occur simultaneously."
       },
 
       occupancyVisualStatus: {

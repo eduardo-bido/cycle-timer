@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-05-04T12:50:06.908Z",
+  "preferences": {
+    "language": "pt",
+    "theme": "light"
+  },
+  "scenario": {
+    "projectName": "SIG",
+    "numberOfLines": 1,
+    "robotModel": "",
+    "palletTransitionTimeS": 10,
+    "recipes": [
+      {
+        "rowId": "1",
+        "nomeReceita": "Queijo 3,5kg",
+        "productionBpm": 15,
+        "boxesPerLayer": 6.7,
+        "layersPerPallet": 9,
+        "picksPerLayer": 6.7,
+        "slipSheetBottom": null,
+        "slipSheetBetweenLayers": null,
+        "palletPick": null
+      }
+    ],
+    "lineRobotTimes": [
+      {
+        "lineIndex": 1,
+        "cycleTimePickS": 10,
+        "cycleTimeSlipSheetS": 0,
+        "cycleTimePalletS": 0
+      }
+    ],
+    "lineRecipeMap": {
+      "1": "1"
+    }
+  }
+}

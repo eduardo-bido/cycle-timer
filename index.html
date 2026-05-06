@@ -436,15 +436,7 @@
                         </div>
                       </div>
 
-                      <div class="output-exec-kpi">
-                        <div class="output-exec-kpi-label">
-                          <span data-i18n="output_exec_margin">Margem disponível</span>
-                          <span class="help-icon" data-help-key="generalMarginS" data-i18n-aria-label="tooltip_helpTitle">?</span>
-                        </div>
-                        <div class="output-exec-kpi-value">
-                          <span id="gen-marginCycleS">—</span><span class="output-exec-kpi-unit"> s</span>
-                        </div>
-                      </div>
+
                     </div>
 
                     <!-- Gráfico secundário (aparece no final) -->
@@ -477,6 +469,20 @@
                       <div id="feasibility-matrix-grid" class="fm-grid">
                         <!-- JS will render the Card Matrix here -->
                       </div>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Bloco 5: Heatmap de Limpeza de Acúmulo -->
+                <section class="panel accum-heatmap-section" id="accum-heatmap-section" hidden>
+                  <header class="panel-header panel-header--row">
+                    <h2 class="panel-title" data-i18n="accum_heatmap_title">Heatmap de Limpeza de Acúmulo</h2>
+                    <span class="help-icon" data-help-key="accumHeatmap" data-i18n-aria-label="tooltip_helpTitle">?</span>
+                  </header>
+                  <div class="panel-body">
+                    <p class="panel-description" data-i18n="accum_heatmap_desc">Simulação avalia a capacidade do robô de limpar o acúmulo gerado pelo pior caso simultâneo em ambas as linhas.</p>
+                    <div class="accum-heatmap-container" id="accum-heatmap-container">
+                      <!-- JS renderiza o heatmap aqui -->
                     </div>
                   </div>
                 </section>
@@ -783,6 +789,39 @@
     </main>
   </div>
 
+  <!-- WELCOME MODAL -->
+  <div id="welcome-modal" class="welcome-modal" aria-hidden="true" hidden>
+    <div class="welcome-backdrop"></div>
+    <div class="welcome-dialog" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+      <div class="welcome-brand">
+        <div class="welcome-logo">
+          <span class="app-title-primary">Cycle</span>
+          <span class="app-title-accent">Timer</span>
+        </div>
+        <div class="welcome-subtitle" data-i18n="welcome_subtitle">Industrial Palletizing Capacity Tool</div>
+      </div>
+      
+      <div class="welcome-actions">
+        <!-- O botão continuar será injetado via JS se houver estado salvo -->
+        <button type="button" id="welcome-btn-continue" class="welcome-btn welcome-btn--primary" hidden>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span data-i18n="welcome_continue">Continuar de onde parei</span>
+        </button>
+        
+        <button type="button" id="welcome-btn-load" class="welcome-btn welcome-btn--secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          <span data-i18n="welcome_load">Carregar cenário (JSON)</span>
+        </button>
+        
+        <button type="button" id="welcome-btn-new" class="welcome-btn welcome-btn--secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span data-i18n="welcome_new">Começar do zero</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
   <script src="engine.js"></script>
   <script src="storage.js"></script>
   <script src="theme.js"></script>
@@ -795,6 +834,7 @@
   <script src="ui-insights-toast.js"></script>
   <script src="ui-outputs.js"></script>
   <script src="ui-feasibility.js"></script>
+<script src="ui-accum-heatmap.js"></script>
   <script src="ui-inputs.js"></script>
   <script src="ui-help-page.js"></script>
   <script src="scenario-pdf.js"></script>

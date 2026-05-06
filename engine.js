@@ -1,9 +1,9 @@
-// Motor matemático do Cycle Timer (planilha simplificada)
-// Função pura, sem acesso a DOM ou storage.
+// Motor matemÃ¡tico do Cycle Timer (planilha simplificada)
+// FunÃ§Ã£o pura, sem acesso a DOM ou storage.
 
 /**
- * Divide com segurança, retornando null se o divisor for inválido
- * ou se qualquer operando não for um número finito.
+ * Divide com seguranÃ§a, retornando null se o divisor for invÃ¡lido
+ * ou se qualquer operando nÃ£o for um nÃºmero finito.
  */
 function safeDivide(numerator, denominator) {
   if (
@@ -66,9 +66,9 @@ function safeSubtract(a, b) {
 }
 
 /**
- * Ciclos para esvaziar acúmulo com remoção líquida (caixas/s retiradas − caixas/s entrando).
- * accumulationQty em caixas; netRemovalBoxesPerSecond = robotRemoval − incoming.
- * Se net ≤ 0 e acúmulo > 0: não há solução finita → null (UI: não atende).
+ * Ciclos para esvaziar acÃºmulo com remoÃ§Ã£o lÃ­quida (caixas/s retiradas âˆ’ caixas/s entrando).
+ * accumulationQty em caixas; netRemovalBoxesPerSecond = robotRemoval âˆ’ incoming.
+ * Se net â‰¤ 0 e acÃºmulo > 0: nÃ£o hÃ¡ soluÃ§Ã£o finita â†’ null (UI: nÃ£o atende).
  */
 function computeCyclesToEmptyWithNetRemoval(
   accumulationQty,
@@ -106,7 +106,7 @@ function computeCyclesToEmptyWithNetRemoval(
 /**
  * Calcula os indicadores do Cycle Timer a partir dos inputs em segundos.
  *
- * Valores negativos são tratados como null (inválidos).
+ * Valores negativos sÃ£o tratados como null (invÃ¡lidos).
  *
  * @param {Object} input
  * @param {number} input.productionBpm
@@ -121,7 +121,7 @@ function computeCyclesToEmptyWithNetRemoval(
  * @param {number} input.cycleTimePalletS
  * @param {number} input.palletTransitionTimeS
  *
- * @returns {Object} resultados com todos os campos calculados ou null em casos inválidos
+ * @returns {Object} resultados com todos os campos calculados ou null em casos invÃ¡lidos
  */
 function computeCycleTimer(input) {
   function normalize(value) {
@@ -145,14 +145,20 @@ function computeCycleTimer(input) {
   var cycleTimeSlipSheetS = normalize(input.cycleTimeSlipSheetS);
   var cycleTimePalletS = normalize(input.cycleTimePalletS);
   var palletTransitionTimeS = normalize(input.palletTransitionTimeS) !== null ? normalize(input.palletTransitionTimeS) : 10;
+  // Carga adicional de outras linhas no pior caso (Modo A multilinear).
+  // Zero quando nÃ£o informado (cenÃ¡rio de 1 linha ou chamada legada).
+  var worstCaseOtherLinesBurdenS = (typeof input.worstCaseOtherLinesBurdenS === "number" && isFinite(input.worstCaseOtherLinesBurdenS) && input.worstCaseOtherLinesBurdenS >= 0)
+    ? input.worstCaseOtherLinesBurdenS
+    : 0;
 
   function componentTime(quantity, cycleTime) {
-    if (
-      quantity === null ||
-      quantity === undefined ||
-      cycleTime === null ||
-      cycleTime === undefined
-    ) {
+    // quantity null/undefined = componente nÃ£o configurado (slip sheet, pallet pick).
+    // Tratamos como 0 â€” nÃ£o contribui para o tempo total, mas NÃƒO bloqueia o cÃ¡lculo.
+    if (quantity === null || quantity === undefined) {
+      return 0;
+    }
+    // cycleTime null = dado de robÃ´ ausente â€” isso SIM bloqueia o cÃ¡lculo.
+    if (cycleTime === null || cycleTime === undefined) {
       return null;
     }
     if (
@@ -163,7 +169,7 @@ function computeCycleTimer(input) {
     ) {
       return null;
     }
-    // Regra física: só contribui se ambos os fatores forem > 0.
+    // Regra fÃ­sica: sÃ³ contribui se ambos os fatores forem > 0.
     if (quantity <= 0 || cycleTime <= 0) {
       return 0;
     }
@@ -187,7 +193,7 @@ function computeCycleTimer(input) {
     ) {
       return 0;
     }
-    // Regra física: ciclo só existe quando quantidade e tempo são > 0.
+    // Regra fÃ­sica: ciclo sÃ³ existe quando quantidade e tempo sÃ£o > 0.
     if (quantity <= 0 || cycleTime <= 0) {
       return 0;
     }
@@ -210,7 +216,7 @@ function computeCycleTimer(input) {
       : safeDivide(boxesPerLayer, picksPerLayer);
 
   // 5. totalCyclesPerPallet = ciclos efetivos de pick + slip sheet + pallet
-  // (cada componente só entra quando quantidade > 0 e tempo > 0)
+  // (cada componente sÃ³ entra quando quantidade > 0 e tempo > 0)
   var effectivePickCycles = componentCycles(picksPerPallet, cycleTimePickS);
   var totalSlipSheets = safeAdd(slipSheetBetweenLayers, slipSheetBottom);
   var effectiveSlipCycles = componentCycles(totalSlipSheets, cycleTimeSlipSheetS);
@@ -228,12 +234,13 @@ function computeCycleTimer(input) {
   var totalCycleTimePalletsS = componentTime(palletPick, cycleTimePalletS);
 
   // 9. totalStackingTimeRobotS = totalCycleTimePicksS + totalCycleTimeSlipSheetS + totalCycleTimePalletsS
+  // SÃ³ Ã© null se o componente obrigatÃ³rio (pick) for null; slip e pallet sÃ£o opcionais (default 0).
   var totalStackingTimeRobotS =
-    totalCycleTimePicksS === null ||
-    totalCycleTimeSlipSheetS === null ||
-    totalCycleTimePalletsS === null
+    totalCycleTimePicksS === null
       ? null
-      : totalCycleTimePicksS + totalCycleTimeSlipSheetS + totalCycleTimePalletsS;
+      : totalCycleTimePicksS +
+        (totalCycleTimeSlipSheetS !== null ? totalCycleTimeSlipSheetS : 0) +
+        (totalCycleTimePalletsS !== null ? totalCycleTimePalletsS : 0);
 
   // 10. accumulationTimeToPalletExchangeS =
   //     cycleTimePickS + (cycleTimePalletS * palletPick) + (cycleTimeSlipSheetS * slipSheetBottom)
@@ -248,27 +255,36 @@ function computeCycleTimer(input) {
     effectivePalletTransitionS === null
       ? null
       : safeAdd(cycleTimePickS, effectivePalletTransitionS);
+
+  // Se não há slip sheet na base, o tempo contribuído é 0, mesmo que o cicloTime seja null.
+  var slipBottomTime = (slipSheetBottom > 0) ? safeMultiply(cycleTimeSlipSheetS, slipSheetBottom) : 0;
+
   var accumulationTimeToPalletExchangeS =
-    partPalletExchange === null
+    partPalletExchange === null || slipBottomTime === null
       ? null
-      : safeAdd(
-          partPalletExchange,
-          safeMultiply(cycleTimeSlipSheetS, slipSheetBottom)
-        );
+      : safeAdd(partPalletExchange, slipBottomTime);
 
-  // 11. productNumberInSlipAccumulation = totalCycleTimeSlipSheetS / gapBetweenBoxesS
+  // 11. productNumberInSlipAccumulation = acÃºmulo gerado por UM evento de slip sheet nesta linha
+  //     + carga total de parada de outras linhas no pior caso (pallet + slip_total + pick de cada outra linha).
+  //     O robÃ´ pode estar servindo outras linhas entre dois slips consecutivos desta linha.
+  var slipEventTimeS = (cycleTimeSlipSheetS !== null && cycleTimeSlipSheetS > 0) ? cycleTimeSlipSheetS : 0;
+  var worstCaseSlipPauseS = slipEventTimeS + worstCaseOtherLinesBurdenS;
   var productNumberInSlipAccumulation =
-    totalCycleTimeSlipSheetS === null || gapBetweenBoxesS === null
-      ? null
-      : safeDivide(totalCycleTimeSlipSheetS, gapBetweenBoxesS);
+    gapBetweenBoxesS === null || worstCaseSlipPauseS === 0
+      ? 0
+      : safeDivide(worstCaseSlipPauseS, gapBetweenBoxesS);
 
-  // 13. productsNumberInPalletAccumulation = accumulationTimeToPalletExchangeS / gapBetweenBoxesS
+  // 13. productsNumberInPalletAccumulation = (accumulationTimeToPalletExchangeS + burden_outras_linhas) / gapBetweenBoxesS
+  //     O robÃ´ pode estar servindo outras linhas durante a troca de pallet desta linha.
+  var worstCasePalletPauseS = accumulationTimeToPalletExchangeS !== null
+    ? accumulationTimeToPalletExchangeS + worstCaseOtherLinesBurdenS
+    : null;
   var productsNumberInPalletAccumulation =
-    accumulationTimeToPalletExchangeS === null || gapBetweenBoxesS === null
+    worstCasePalletPauseS === null || gapBetweenBoxesS === null
       ? null
-      : safeDivide(accumulationTimeToPalletExchangeS, gapBetweenBoxesS);
+      : safeDivide(worstCasePalletPauseS, gapBetweenBoxesS);
 
-  // Remoção líquida na limpeza por ciclo de pick (mesma base para slip e pallet)
+  // RemoÃ§Ã£o lÃ­quida na limpeza por ciclo de pick (mesma base para slip e pallet)
   var incomingBoxesPerSecond = safeDivide(productionBpm, 60);
   var robotRemovalBoxesPerSecond = safeDivide(boxesPerCycle, cycleTimePickS);
   var netRemovalBoxesPerSecond = safeSubtract(
@@ -276,7 +292,7 @@ function computeCycleTimer(input) {
     incomingBoxesPerSecond
   );
 
-  // 12. cyclesToEmptySlipAccumulation — tempo para zerar fila / duração do ciclo de pick
+  // 12. cyclesToEmptySlipAccumulation â€” tempo para zerar fila / duraÃ§Ã£o do ciclo de pick
   var cyclesToEmptySlipAccumulation = computeCyclesToEmptyWithNetRemoval(
     productNumberInSlipAccumulation,
     netRemovalBoxesPerSecond,
@@ -304,28 +320,15 @@ function computeCycleTimer(input) {
       ? null
       : safeDivide(totalStackingTimeRobotS, totalTimeOfPalletStackingS);
 
-  // 17. cyclesNumberPerMinute =
-  //     (totalCyclesPerPallet + cyclesToEmptySlipAccumulation + cyclesToEmptyPalletAccumulation)
-  //     / (totalTimeOfPalletStackingS / 60)
-  var cyclesNumerator =
-    totalCyclesPerPallet === null ||
-    cyclesToEmptySlipAccumulation === null ||
-    cyclesToEmptyPalletAccumulation === null
-      ? null
-      : safeAdd(
-          totalCyclesPerPallet,
-          safeAdd(cyclesToEmptySlipAccumulation, cyclesToEmptyPalletAccumulation)
-        );
-
   var palletTimeMinutes =
     totalTimeOfPalletStackingS === null
       ? null
       : safeDivide(totalTimeOfPalletStackingS, 60);
 
   var cyclesNumberPerMinute =
-    cyclesNumerator === null || palletTimeMinutes === null
+    totalCyclesPerPallet === null || palletTimeMinutes === null
       ? null
-      : safeDivide(cyclesNumerator, palletTimeMinutes);
+      : safeDivide(totalCyclesPerPallet, palletTimeMinutes);
 
   // 18. averageCycleTimeS = 60 / cyclesNumberPerMinute
   var averageCycleTimeS =
@@ -341,9 +344,55 @@ function computeCycleTimer(input) {
   var palletsPerHour =
     boxesPerPalletDiv === null ? null : safeDivide(60, boxesPerPalletDiv);
 
-  var canClearAccumulation = null;
-  if (cyclesToEmptyPalletAccumulation !== null && picksPerPallet !== null) {
-    canClearAccumulation = cyclesToEmptyPalletAccumulation <= picksPerPallet;
+  // 20. picksBetweenSlips = quantidade de picks disponÃ­veis para limpar um acÃºmulo de slip
+  // Se totalSlipSheets = 2 em 10 camadas, temos 5 camadas de picks para limpar cada slip.
+  var layersPerSlip = (totalSlipSheets !== null && totalSlipSheets > 0)
+    ? safeDivide(layersPerPallet, totalSlipSheets)
+    : layersPerPallet;
+  var picksBetweenSlips = safeMultiply(picksPerLayer, layersPerSlip);
+
+  var canClearAccumulation = {
+    pallet: null,
+    slip: null,
+    overall: null
+  };
+
+  if (picksPerPallet !== null) {
+    // Só é true se o acúmulo for explicitamente 0 OU se o robô conseguir limpar no prazo.
+    // Se productsNumberInPalletAccumulation for null (erro de cálculo), tratamos como null.
+    if (productsNumberInPalletAccumulation === 0) {
+      canClearAccumulation.pallet = true;
+    } else if ((typeof productsNumberInPalletAccumulation === "number" && isFinite(productsNumberInPalletAccumulation)) && (typeof cyclesToEmptyPalletAccumulation === "number" && isFinite(cyclesToEmptyPalletAccumulation))) {
+      canClearAccumulation.pallet = (cyclesToEmptyPalletAccumulation <= picksPerPallet);
+    } else if (productsNumberInPalletAccumulation > 0 && cyclesToEmptyPalletAccumulation === null) {
+      // Remoção negativa
+      canClearAccumulation.pallet = false;
+    } else {
+      canClearAccumulation.pallet = null;
+    }
+  }
+
+  if (picksBetweenSlips !== null) {
+    if (slipEventTimeS === 0 || productNumberInSlipAccumulation === 0) {
+      canClearAccumulation.slip = true;
+    } else if ((typeof productNumberInSlipAccumulation === "number" && isFinite(productNumberInSlipAccumulation)) && (typeof cyclesToEmptySlipAccumulation === "number" && isFinite(cyclesToEmptySlipAccumulation))) {
+      canClearAccumulation.slip = (cyclesToEmptySlipAccumulation <= picksBetweenSlips);
+    } else if (productNumberInSlipAccumulation > 0 && cyclesToEmptySlipAccumulation === null) {
+      // Remoção negativa
+      canClearAccumulation.slip = false;
+    } else {
+      canClearAccumulation.slip = null;
+    }
+  }
+
+  // overall: só true se ambos são explicitamente true; se houver algum false, é false.
+  if (canClearAccumulation.pallet === null && canClearAccumulation.slip === null) {
+    canClearAccumulation.overall = null;
+  } else if (canClearAccumulation.pallet === false || canClearAccumulation.slip === false) {
+    canClearAccumulation.overall = false;
+  } else {
+    // Ambos são (true ou null), e ao menos um é true.
+    canClearAccumulation.overall = (canClearAccumulation.pallet === true || canClearAccumulation.slip === true);
   }
 
   return {
@@ -357,6 +406,7 @@ function computeCycleTimer(input) {
     totalCycleTimePalletsS: totalCycleTimePalletsS,
     totalStackingTimeRobotS: totalStackingTimeRobotS,
     accumulationTimeToPalletExchangeS: accumulationTimeToPalletExchangeS,
+    worstCaseOtherLinesBurdenS: worstCaseOtherLinesBurdenS,
     productNumberInSlipAccumulation: productNumberInSlipAccumulation,
     cyclesToEmptySlipAccumulation: cyclesToEmptySlipAccumulation,
     productsNumberInPalletAccumulation: productsNumberInPalletAccumulation,
@@ -368,15 +418,17 @@ function computeCycleTimer(input) {
     averageCycleTimeS: averageCycleTimeS,
     palletsPerHour: palletsPerHour,
     effectivePalletTransitionS: effectivePalletTransitionS,
+    picksBetweenSlips: picksBetweenSlips,
     canClearAccumulation: canClearAccumulation
   };
 }
 
-// Export opcional para ambientes de módulo (não interfere no uso via <script> simples)
+// Export opcional para ambientes de mÃ³dulo (nÃ£o interfere no uso via <script> simples)
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     computeCycleTimer: computeCycleTimer,
     computeCyclesToEmptyWithNetRemoval: computeCyclesToEmptyWithNetRemoval
   };
 }
+
 

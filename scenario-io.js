@@ -465,6 +465,11 @@
     if (typeof window.rebuildCycleTimerOutputGrids === "function") {
       window.rebuildCycleTimerOutputGrids();
     }
+
+    // Salva o estado final consolidado
+    if (typeof window.saveScenario === "function" && typeof window.buildCycleTimerExportPayload === "function") {
+      window.saveScenario(window.buildCycleTimerExportPayload());
+    }
   }
 
   function initScenarioIo() {
@@ -533,27 +538,32 @@
     if (rbt) {
       rbt.addEventListener("click", function () {
         if (!confirm("Tem certeza que deseja apagar todos os dados atuais e iniciar um novo projeto?")) return;
-        
-        var emptyData = {
-          preferences: { language: window.I18N ? window.I18N.getLang() : "pt", theme: document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light" },
-          scenario: {
-            projectName: "",
-            numberOfLines: 1,
-            robotModel: "",
-            palletTransitionTimeS: 10,
-            recipes: [{
-              rowId: "1", nomeReceita: "", productionBpm: null, boxesPerLayer: null, layersPerPallet: null, picksPerLayer: null, slipSheetBottom: null, slipSheetBetweenLayers: null, palletPick: null
-            }],
-            lineRobotTimes: [{ lineIndex: 1, cycleTimePickS: null, cycleTimeSlipSheetS: null, cycleTimePalletS: null }],
-            lineRecipeMap: {}
-          },
-          recipeRow1Engine: {
-            nomeReceita: "", productionBpm: null, boxesPerLayer: null, layersPerPallet: null, picksPerLayer: null, slipSheetBottom: null, slipSheetBetweenLayers: null, palletPick: null
-          }
-        };
-        applyImportedSnapshot(emptyData);
+        if (typeof window.resetCycleTimerToEmpty === "function") {
+          window.resetCycleTimerToEmpty();
+        }
       });
     }
+  }
+
+  function resetCycleTimerToEmpty() {
+    var emptyData = {
+      preferences: { language: window.I18N ? window.I18N.getLang() : "pt", theme: document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light" },
+      scenario: {
+        projectName: "",
+        numberOfLines: 1,
+        robotModel: "",
+        palletTransitionTimeS: 10,
+        recipes: [{
+          rowId: "1", nomeReceita: "", productionBpm: null, boxesPerLayer: null, layersPerPallet: null, picksPerLayer: null, slipSheetBottom: null, slipSheetBetweenLayers: null, palletPick: null
+        }],
+        lineRobotTimes: [{ lineIndex: 1, cycleTimePickS: null, cycleTimeSlipSheetS: null, cycleTimePalletS: null }],
+        lineRecipeMap: {}
+      },
+      recipeRow1Engine: {
+        nomeReceita: "", productionBpm: null, boxesPerLayer: null, layersPerPallet: null, picksPerLayer: null, slipSheetBottom: null, slipSheetBetweenLayers: null, palletPick: null
+      }
+    };
+    applyImportedSnapshot(emptyData);
   }
 
   if (typeof window !== "undefined") {
@@ -561,6 +571,7 @@
     window.buildCycleTimerExportPayload = buildExportPayload;
     window.applyCycleTimerSnapshot = applyImportedSnapshot;
     window.cycleTimerTriggerDownload = triggerDownload;
+    window.resetCycleTimerToEmpty = resetCycleTimerToEmpty;
   }
 
   if (typeof document !== "undefined") {

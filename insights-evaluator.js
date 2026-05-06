@@ -12,6 +12,13 @@ window.CycleTimerInsights = (function() {
    * @param {{ general: any, lines: any[] }} payload
    */
   function scheduleUpdate(payload) {
+    function t(key) {
+      if (window.I18N && typeof window.I18N.t === 'function') {
+        return window.I18N.t(key);
+      }
+      return key;
+    }
+    
     if (!payload || !payload.general || !payload.lines) return;
     
     var currentInsights = {};
@@ -26,14 +33,14 @@ window.CycleTimerInsights = (function() {
       if (occ > 95) {
         currentInsights['occ_global'] = {
           type: 'critical',
-          title: 'Ocupação Global Crítica (' + occFormatted + ')',
-          message: 'O robô excedeu a capacidade para o conjunto de linhas selecionado.'
+          title: t('insight_occ_global_critical_title').replace('{{value}}', occFormatted),
+          message: t('insight_occ_global_critical_msg')
         };
       } else if (occ >= 90 && occ <= 95) {
         currentInsights['occ_global'] = {
           type: 'warning',
-          title: 'Atenção à Ocupação (' + occFormatted + ')',
-          message: 'A soma das linhas está próxima ao limite operacional do robô.'
+          title: t('insight_occ_global_warn_title').replace('{{value}}', occFormatted),
+          message: t('insight_occ_global_warn_msg')
         };
       }
     }
@@ -51,8 +58,14 @@ window.CycleTimerInsights = (function() {
             // Se houver caixas na acumulação (ou se for taxa zero), avisamos
             currentInsights['net_line_' + lineNum] = {
                 type: 'critical',
-                title: 'Linha ' + lineNum + ': Remoção Negativa',
-                message: 'A taxa de entrada é maior que a capacidade de extração nesta linha.'
+                title: t('insight_net_removal_critical_title').replace('{{n}}', lineNum),
+                message: t('insight_net_removal_critical_msg')
+            };
+        } else if (r.canClearAccumulation && r.canClearAccumulation.slip === false) {
+            currentInsights['slip_accum_' + lineNum] = {
+                type: 'warning',
+                title: t('insight_slip_accum_warn_title').replace('{{n}}', lineNum),
+                message: t('insight_slip_accum_warn_msg')
             };
         }
     }

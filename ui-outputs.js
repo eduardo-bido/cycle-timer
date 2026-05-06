@@ -178,7 +178,10 @@
       var fail = false;
       if (slipOrPallet === "pallet" && isValidNumber(availablePicks)) {
           text += " / " + formatInteger(availablePicks);
-          fail = cycles > availablePicks;
+          fail = results.canClearAccumulation ? !results.canClearAccumulation.pallet : false;
+      } else if (slipOrPallet === "slip" && isValidNumber(results.picksBetweenSlips)) {
+          text += " / " + formatInteger(results.picksBetweenSlips);
+          fail = results.canClearAccumulation ? !results.canClearAccumulation.slip : false;
       }
       return { text: text, fail: fail };
     }
@@ -283,7 +286,6 @@
 
   var elGenRequired = document.getElementById("gen-requiredCycleS");
   var elGenAvailable = document.getElementById("gen-availableCycleS");
-  var elGenMargin = document.getElementById("gen-marginCycleS");
 
   function parseNumber(value) {
     if (value === null || value === undefined) return null;
@@ -374,6 +376,47 @@
       }
     }
 
+    // Lê o tempo de transição de pallet global (fallback 10s)
+    var palletTransitionEl = document.getElementById("robot-transition-time");
+    var globalPalletTransitionS = palletTransitionEl ? (parseNumber(palletTransitionEl.value) || 10) : 10;
+
+    // --- PASSE 1: Coletar métricas brutas de pausa de cada linha ---
+    // Necessário para calcular o burden multilinear (pior caso Modo A).
+    // Para cada linha Ly, calculamos a sua contribuição de pausa:
+    //   palletBurdenS = tempo de troca de pallet de Ly
+    //   slipBurdenS   = totalSlipSheets_Ly × cycleTimeSlipS_Ly  (todas as paradas de slip do pallet)
+    //   pickBurdenS   = cycleTimePickS_Ly (um ciclo de pick-place completo)
+    var linePauseContrib = {};
+    for (var ly = 1; ly <= maxLines; ly++) {
+      var rtLy = getRobotTimesByLine(ly);
+      var recIdLy = lineRecipeMap[ly];
+      var recLy = recIdLy ? getRecipeByRowId(recIdLy) : null;
+
+      // Pallet burden
+      var palletPickLy = recLy ? (recLy.palletPick || 0) : 0;
+      var palletBurden = (palletPickLy > 0 && rtLy.cycleTimePalletS > 0)
+        ? palletPickLy * rtLy.cycleTimePalletS
+        : globalPalletTransitionS;
+
+      // Slip burden: totalSlipSheets × cycleTimeSlip (frequência real por pallet)
+      var slipBottomLy = recLy ? (recLy.slipSheetBottom || 0) : 0;
+      var slipBetweenLy = recLy ? (recLy.slipSheetBetweenLayers || 0) : 0;
+      var totalSlipsLy = slipBottomLy + slipBetweenLy;
+      var slipBurden = (totalSlipsLy > 0 && rtLy.cycleTimeSlipSheetS > 0)
+        ? totalSlipsLy * rtLy.cycleTimeSlipSheetS
+        : 0;
+
+      // Pick burden: um ciclo de pick-place desta linha
+      var pickBurden = rtLy.cycleTimePickS || 0;
+
+      linePauseContrib[ly] = {
+        palletBurdenS: palletBurden,
+        slipBurdenS: slipBurden,
+        pickBurdenS: pickBurden
+      };
+    }
+
+    // --- PASSE 2: Rodar engine por linha com burden das outras ---
     var out = [];
     for (var lineIndex = 1; lineIndex <= maxLines; lineIndex++) {
       var mappedRowId = lineRecipeMap[lineIndex];
@@ -392,6 +435,14 @@
       var recipe = getRecipeByRowId(mappedRowId);
       var robotTimes = getRobotTimesByLine(lineIndex);
 
+      // Somar a contribuição de pausa de todas as OUTRAS linhas (Modo A — pior caso absoluto)
+      var otherLinesBurdenS = 0;
+      for (var ox = 1; ox <= maxLines; ox++) {
+        if (ox === lineIndex) continue;
+        var c = linePauseContrib[ox];
+        if (c) otherLinesBurdenS += c.palletBurdenS + c.slipBurdenS + c.pickBurdenS;
+      }
+
       var engineInput = {
         productionBpm: recipe ? recipe.productionBpm : null,
         boxesPerLayer: recipe ? recipe.boxesPerLayer : null,
@@ -402,7 +453,9 @@
         palletPick: recipe ? recipe.palletPick : null,
         cycleTimePickS: robotTimes.cycleTimePickS,
         cycleTimeSlipSheetS: robotTimes.cycleTimeSlipSheetS,
-        cycleTimePalletS: robotTimes.cycleTimePalletS
+        cycleTimePalletS: robotTimes.cycleTimePalletS,
+        palletTransitionTimeS: globalPalletTransitionS,
+        worstCaseOtherLinesBurdenS: otherLinesBurdenS
       };
 
       var results = computeCycleTimer(engineInput);
@@ -426,7 +479,6 @@
     var g = computeGeneralAggregatesFromLines(lines);
     var reqGeneral = g.reqGeneral;
     var avGeneral = g.avGeneral;
-    var marginGeneral = g.marginGeneral;
     var cyclesPerMinGeneral = g.cyclesPerMinGeneral;
     var occGeneral = g.occGeneral;
     var occClass = g.occClass;
@@ -437,22 +489,28 @@
       rt.okBadge.classList.remove("status--ok", "status--limit", "status--fail", "status--na");
     }
 
-    var canClearAccumGeneral = true;
+    var canClearAccumGeneral = null; // null = sem dados; true = todas ok; false = alguma falhou
     var hasValidLines = false;
     for (var i = 0; i < lines.length; i++) {
       if (isLineValidForGeneral(lines[i])) {
          hasValidLines = true;
-         if (lines[i].results && lines[i].results.canClearAccumulation === false) {
+         var lineOverall = lines[i].results && lines[i].results.canClearAccumulation
+           ? lines[i].results.canClearAccumulation.overall
+           : null;
+         // IF ALL lines TRUE → overall true. Qualquer false ou null quebra a cadeia.
+         if (lineOverall !== true) {
             canClearAccumGeneral = false;
+         } else if (canClearAccumGeneral !== false) {
+            canClearAccumGeneral = true;
          }
       }
     }
 
     if (rt.accumBadge) {
-      if (!hasValidLines) {
+      if (!hasValidLines || canClearAccumGeneral === null) {
         rt.accumBadge.textContent = "—";
         rt.accumBadge.className = "output-exec-kpi-value";
-      } else if (canClearAccumGeneral) {
+      } else if (canClearAccumGeneral === true) {
         rt.accumBadge.textContent = "✅";
         rt.accumBadge.className = "output-exec-kpi-value txt-ok";
       } else {
@@ -493,7 +551,6 @@
     // KPIs adicionais no bloco Geral (soma real das linhas válidas)
     setText(elGenRequired, isValidNumber(reqGeneral) ? formatSeconds(reqGeneral) : "—");
     setText(elGenAvailable, isValidNumber(avGeneral) ? formatSeconds(avGeneral) : "—");
-    setText(elGenMargin, isValidNumber(marginGeneral) ? formatSeconds(marginGeneral) : "—");
 
     // Insights (toast macOS-like): debounce + edge-trigger vivem no módulo de toast.
     if (
@@ -837,6 +894,10 @@
         return function (e) {
           var val = e.target.value || "";
           lineRecipeMap[line] = val;
+          // Salva imediatamente no localStorage
+          if (typeof saveScenario === "function" && typeof buildCycleTimerExportPayload === "function") {
+            saveScenario(buildCycleTimerExportPayload());
+          }
           // Atualiza "Geral" imediatamente ao trocar associação
           var lines = computeLineResults();
           renderGeneralChart(lines);
@@ -1041,6 +1102,17 @@
       );
       if (occCls) occItem.classList.add("occ-signal", occCls);
 
+      // Limpa Acúmulo? — KPI #2 (mais importante depois de ocupação)
+      var canClear = r.canClearAccumulation ? r.canClearAccumulation.overall : null;
+      var canClearValue = canClear === true ? "✅" : (canClear === false ? "❌" : "—");
+      var canClearCls = canClear === true ? "txt-ok" : (canClear === false ? "txt-fail" : "");
+      var canClearItem = makeItem(
+        t("output_top_can_clear_accum").toUpperCase(),
+        canClearValue,
+        canClearCls,
+        "canClearAccumulation"
+      );
+
       // Ciclos/min
       var cpmValue = isValidNumber(r.cyclesNumberPerMinute)
         ? formatSeconds(r.cyclesNumberPerMinute)
@@ -1071,6 +1143,7 @@
       );
 
       topBand.appendChild(occItem);
+      topBand.appendChild(canClearItem);
       topBand.appendChild(cpmItem);
       topBand.appendChild(reqItem);
       topBand.appendChild(maxAccumItem);
@@ -1152,8 +1225,9 @@
       addRow(sectionFInner, t("output_row_accum_time_exchange"), formatOptionalSeconds(r.accumulationTimeToPalletExchangeS), "accumulationTimeToPalletExchangeS");
       addRow(sectionFInner, t("output_row_pallet_transition"), formatOptionalSeconds(r.effectivePalletTransitionS), "palletTransitionTime");
       
-      var canClearText = r.canClearAccumulation === true ? (t("output_accum_ok") || "Sim") : (r.canClearAccumulation === false ? (t("output_accum_fail") || "Não") : "—");
-      var canClearClass = r.canClearAccumulation === true ? "txt-ok" : (r.canClearAccumulation === false ? "txt-fail" : "");
+      var canClear = (r.canClearAccumulation && typeof r.canClearAccumulation === 'object') ? r.canClearAccumulation.overall : r.canClearAccumulation;
+      var canClearText = canClear === true ? (t("output_accum_ok") || "Sim") : (canClear === false ? (t("output_accum_fail") || "Não") : "—");
+      var canClearClass = canClear === true ? "txt-ok" : (canClear === false ? "txt-fail" : "");
       addRow(sectionFInner, t("output_row_can_clear_accum"), canClearText, "canClearAccumulation", canClearClass);
       
       addRow(sectionFInner, t("output_row_net_removal"), isValidNumber(r.netRemovalBoxesPerSecond) ? formatNumber2(r.netRemovalBoxesPerSecond) : "—", "netRemovalBoxesPerSecond");
@@ -1655,6 +1729,9 @@
     renderGeneralKpisFromLines(lines);
     if (typeof window.runFeasibilityMatrix === "function") {
       window.runFeasibilityMatrix();
+    }
+    if (typeof window.runAccumHeatmap === "function") {
+      window.runAccumHeatmap();
     }
     if (typeof window.syncRecipeDependentFields === "function") {
       window.syncRecipeDependentFields();
