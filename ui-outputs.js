@@ -623,92 +623,108 @@
     var svg = document.createElementNS(svgns, "svg");
     svg.setAttribute("class", "general-bars");
     svg.setAttribute("viewBox", "0 0 " + w + " " + h);
-    svg.setAttribute("width", "100%");
-    svg.setAttribute("height", "100%");
-
-    // Background track (100%)
+    // Background track (100%) - Representa o total possÃ­vel
     var rail = document.createElementNS(svgns, "rect");
     rail.setAttribute("x", x0);
     rail.setAttribute("y", pad);
     rail.setAttribute("width", maxBarW);
     rail.setAttribute("height", barH);
     rail.setAttribute("rx", "10");
-    rail.setAttribute("fill", "#e5e7eb"); // Cinza claro
+    rail.setAttribute("class", "bar-track");
     svg.appendChild(rail);
 
-    var currentX = x0;
     var totalOcc = 0;
-    
-    // Tons de verde para as linhas
-    var greens = [
-      "#2f855a", // Linha 1
-      "#38a169", // Linha 2
-      "#48bb78", // Linha 3
-      "#68d391", // Linha 4
-      "#9ae6b4", // Linha 5
-      "#c6f6d5"  // Linha 6
-    ];
-
-    for (var i = 0; i < chartLines.length; i++) {
-      var line = chartLines[i];
-      var occ = line.results ? line.results.robotOccupancyRate : 0;
-      if (!isValidNumber(occ) || occ <= 0) continue;
-
-      var segmentW = occ * maxBarW;
-      // Se ultrapassar 100%, clipa visualmente para o rail mas guarda o total
-      var visualW = segmentW;
-      if (currentX + segmentW > x0 + maxBarW) {
-        visualW = Math.max(0, x0 + maxBarW - currentX);
-      }
-
-      if (visualW > 0.5) {
-        var rect = document.createElementNS(svgns, "rect");
-        rect.setAttribute("x", currentX);
-        rect.setAttribute("y", pad);
-        rect.setAttribute("width", visualW);
-        rect.setAttribute("height", barH);
-        // Rounded corners apenas nas extremidades
-        if (i === 0 && currentX + visualW < x0 + maxBarW) {
-          rect.setAttribute("rx", "10"); // Placeholder, SVG rect rx applies to all
-        }
-        rect.setAttribute("fill", greens[i % greens.length]);
-        
-        // Tooltip hint
-        rect.setAttribute("class", "help-node");
-        rect.setAttribute("data-help-key", "lineOccupancy");
-        rect.setAttribute("tabindex", "0");
-        
-        svg.appendChild(rect);
-
-        // Label minimalista dentro ou sobre o segmento se couber
-        if (visualW > 40) {
-          var txt = document.createElementNS(svgns, "text");
-          txt.setAttribute("x", currentX + visualW / 2);
-          txt.setAttribute("y", pad + barH / 2 + 5);
-          txt.setAttribute("text-anchor", "middle");
-          txt.setAttribute("fill", i < 3 ? "#ffffff" : "#1a3a2a");
-          txt.setAttribute("font-size", "11");
-          txt.setAttribute("font-weight", "800");
-          txt.textContent = "L" + line.lineIndex;
-          svg.appendChild(txt);
-        }
-      }
-
-      currentX += segmentW;
-      totalOcc += occ;
+    for (var j = 0; j < chartLines.length; j++) {
+      var occVal = chartLines[j].results ? chartLines[j].results.robotOccupancyRate : 0;
+      if (isValidNumber(occVal)) totalOcc += occVal;
     }
 
-    // Se ultrapassou 100%, mostra um indicador de excesso
-    if (totalOcc > 1) {
-      var overW = Math.min(20, (totalOcc - 1) * maxBarW);
-      var overRect = document.createElementNS(svgns, "rect");
-      overRect.setAttribute("x", x0 + maxBarW - 4);
-      overRect.setAttribute("y", pad);
-      overRect.setAttribute("width", 4);
-      overRect.setAttribute("height", barH);
-      overRect.setAttribute("fill", "#dc2626"); // Vermelho
-      svg.appendChild(overRect);
+    var statusClass = getOccupancyClassFromRate(totalOcc);
+    var statusMod = occupancyBarModifierFromOccClass(statusClass);
+    if (totalOcc > 1) statusMod = "bar-occupancy--over";
+
+    // Capped fill width (mÃ¡ximo 100% visual)
+    var cappedTotalOcc = Math.min(1.0, totalOcc);
+    var fillW = cappedTotalOcc * maxBarW;
+
+    if (fillW > 0.5) {
+      // DefiniÃ§Ã£o do ClipPath para arredondamento externo do preenchimento
+      var defs = document.createElementNS(svgns, "defs");
+      var clip = document.createElementNS(svgns, "clipPath");
+      var clipId = "stacked-clip-" + Math.floor(Math.random() * 1000000);
+      clip.setAttribute("id", clipId);
+      
+      var clipRect = document.createElementNS(svgns, "rect");
+      clipRect.setAttribute("x", x0);
+      clipRect.setAttribute("y", pad);
+      clipRect.setAttribute("width", fillW);
+      clipRect.setAttribute("height", barH);
+      clipRect.setAttribute("rx", "10");
+      
+      clip.appendChild(clipRect);
+      defs.appendChild(clip);
+      svg.appendChild(defs);
+
+      // Grupo clipado para garantir transiÃ§Ãµes internas retas (sharp)
+      var g = document.createElementNS(svgns, "g");
+      g.setAttribute("clip-path", "url(#" + clipId + ")");
+      svg.appendChild(g);
+
+      var currentX = x0;
+      for (var i = 0; i < chartLines.length; i++) {
+        var line = chartLines[i];
+        var occ = line.results ? line.results.robotOccupancyRate : 0;
+        if (!isValidNumber(occ) || occ <= 0) continue;
+
+        var segmentW = (totalOcc > 1) ? (occ / totalOcc) * fillW : occ * maxBarW;
+        
+        if (currentX + segmentW > x0 + fillW) {
+          segmentW = Math.max(0, x0 + fillW - currentX);
+        }
+
+        if (segmentW > 0.5) {
+          var rect = document.createElementNS(svgns, "rect");
+          rect.setAttribute("x", currentX);
+          rect.setAttribute("y", pad);
+          rect.setAttribute("width", segmentW);
+          rect.setAttribute("height", barH);
+          rect.setAttribute("rx", "0"); // Garante cantos retos internamente
+          rect.setAttribute("class", "bar-occupancy " + statusMod + " help-node");
+          
+          rect.setAttribute("data-help-key", "lineOccupancy");
+          rect.setAttribute("tabindex", "0");
+          g.appendChild(rect);
+
+          // Divisor branco fino para separar as linhas sem arredondamento
+          if (i > 0) {
+            var divider = document.createElementNS(svgns, "line");
+            divider.setAttribute("x1", currentX);
+            divider.setAttribute("y1", pad);
+            divider.setAttribute("x2", currentX);
+            divider.setAttribute("y2", pad + barH);
+            divider.setAttribute("stroke", "#ffffff");
+            divider.setAttribute("stroke-width", "1.5");
+            divider.setAttribute("stroke-opacity", "0.4");
+            g.appendChild(divider);
+          }
+
+          if (segmentW > 35) {
+            var txt = document.createElementNS(svgns, "text");
+            txt.setAttribute("x", currentX + segmentW / 2);
+            txt.setAttribute("y", pad + barH / 2 + 5);
+            txt.setAttribute("text-anchor", "middle");
+            txt.setAttribute("fill", "#ffffff");
+            txt.setAttribute("font-size", "12");
+            txt.setAttribute("font-weight", "900");
+            txt.setAttribute("style", "text-shadow: 0 1px 2px rgba(0,0,0,0.2);");
+            txt.textContent = "L" + line.lineIndex;
+            g.appendChild(txt);
+          }
+        }
+        currentX += segmentW;
+      }
     }
+
 
     // Legenda sutil abaixo
     var legendY = pad + barH + gap + 14;
@@ -810,7 +826,7 @@
       rail.setAttribute("y", yBase);
       rail.setAttribute("width", maxBarW);
       rail.setAttribute("height", barH);
-      rail.setAttribute("rx", "6");
+      rail.setAttribute("rx", "10");
       rail.setAttribute("class", "bar-track");
       svg.appendChild(rail);
 
@@ -826,7 +842,7 @@
           fillR.setAttribute("y", yBase);
           fillR.setAttribute("width", fillW);
           fillR.setAttribute("height", barH);
-          fillR.setAttribute("rx", "6");
+          fillR.setAttribute("rx", "10");
           fillR.setAttribute("class", "bar-occupancy " + fillMod);
           svg.appendChild(fillR);
         }
