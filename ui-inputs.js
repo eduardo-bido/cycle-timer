@@ -298,31 +298,21 @@ function initInputsUI(api) {
 
   if (elSlipSheetBottom) {
     elSlipSheetBottom.addEventListener("input", function () {
-      // Observação: a coluna visual "Capturas de pallet" está posicionada
-      // no DOM sobre o input de id "recipe-slipSheetBottom".
-      // Para que o Pallet pick (engine) use o valor do usuário corretamente,
-      // mapeamos este input visual para o campo palletPick do estado.
-      updateRecipe({ palletPick: parseNumber(elSlipSheetBottom.value) });
+      updateRecipe({ slipSheetBottom: parseNumber(elSlipSheetBottom.value) });
     });
   }
 
   if (elSlipSheetBetweenLayers) {
     elSlipSheetBetweenLayers.addEventListener("input", function () {
       updateRecipe({
-        // Observação: o input de id "recipe-slipSheetBetweenLayers" corresponde
-        // visualmente à coluna "Slip sheet na base".
-        // Logo, este valor alimenta slipSheetBottom (engine).
-        slipSheetBottom: parseNumber(elSlipSheetBetweenLayers.value)
+        slipSheetBetweenLayers: parseNumber(elSlipSheetBetweenLayers.value)
       });
     });
   }
 
   if (elPalletPick) {
     elPalletPick.addEventListener("input", function () {
-      // Observação: o input de id "recipe-capturasPallet" corresponde
-      // visualmente à coluna "Slip sheet entre camadas".
-      // Logo, este valor alimenta slipSheetBetweenLayers (engine).
-      updateRecipe({ slipSheetBetweenLayers: parseNumber(elPalletPick.value) });
+      updateRecipe({ palletPick: parseNumber(elPalletPick.value) });
     });
   }
 
@@ -448,13 +438,20 @@ function initInputsUI(api) {
   var elCycleTimePalletS = document.getElementById("robot-cicloPalletMs");
   var elPalletTransitionTimeS = document.getElementById("robot-transition-time");
 
-  // Sync Project Name to Outputs header
   if (elProjectName) {
     elProjectName.addEventListener("input", function() {
       var outPn = document.getElementById("output-project-name");
+      var v = elProjectName.value.trim();
       if (outPn) {
-        var v = elProjectName.value.trim();
         outPn.textContent = v ? " — " + v : "";
+      }
+      // Salva imediatamente
+      if (typeof window.saveScenario === "function" && typeof window.buildCycleTimerExportPayload === "function") {
+        window.saveScenario(window.buildCycleTimerExportPayload());
+      }
+      // Notifica dashboard
+      if (typeof window.rebuildAllDashboardOutputs === "function") {
+        window.rebuildAllDashboardOutputs();
       }
     });
   }
@@ -549,6 +546,10 @@ if (document.readyState === "loading") {
 
     if (typeof window.saveScenario === "function" && typeof window.buildCycleTimerExportPayload === "function") {
       window.saveScenario(window.buildCycleTimerExportPayload());
+    }
+
+    if (typeof window.rebuildAllDashboardOutputs === "function") {
+      window.rebuildAllDashboardOutputs();
     }
 
     var isRobotTime = t.id && t.id.indexOf("robot-ciclo") !== -1;

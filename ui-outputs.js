@@ -671,6 +671,8 @@
       svg.appendChild(g);
 
       var currentX = x0;
+      // Variações de opacidade sobre o verde padrão para diferenciar linhas
+      var opacities = [1.0, 0.78, 0.58, 0.82, 0.65, 0.90];
       for (var i = 0; i < chartLines.length; i++) {
         var line = chartLines[i];
         var occ = line.results ? line.results.robotOccupancyRate : 0;
@@ -688,8 +690,10 @@
           rect.setAttribute("y", pad);
           rect.setAttribute("width", segmentW);
           rect.setAttribute("height", barH);
-          rect.setAttribute("rx", "0"); // Garante cantos retos internamente
+          rect.setAttribute("rx", "0");
           rect.setAttribute("class", "bar-occupancy " + statusMod + " help-node");
+          rect.setAttribute("opacity", String(opacities[i % opacities.length]));
+
           
           rect.setAttribute("data-help-key", "lineOccupancy");
           rect.setAttribute("tabindex", "0");
@@ -708,16 +712,25 @@
             g.appendChild(divider);
           }
 
-          if (segmentW > 35) {
+          if (segmentW > 45) {
             var txt = document.createElementNS(svgns, "text");
             txt.setAttribute("x", currentX + segmentW / 2);
-            txt.setAttribute("y", pad + barH / 2 + 5);
+            txt.setAttribute("y", pad + barH / 2 + 6);
             txt.setAttribute("text-anchor", "middle");
-            txt.setAttribute("fill", "#ffffff");
-            txt.setAttribute("font-size", "12");
+            // Se for modo escuro, tenta usar cor de fundo para contraste "reverse"
+            var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+            txt.setAttribute("fill", isDark ? "#111827" : "#ffffff");
+            txt.setAttribute("font-size", "14");
             txt.setAttribute("font-weight", "900");
-            txt.setAttribute("style", "text-shadow: 0 1px 2px rgba(0,0,0,0.2);");
-            txt.textContent = "L" + line.lineIndex;
+            var shadow = isDark
+              ? "text-shadow: 0 1px 1px rgba(192,255,0,0.15); pointer-events: none;"
+              : "text-shadow: 0 1px 2px rgba(0,0,0,0.25); pointer-events: none;";
+            txt.setAttribute("style", shadow);
+            
+            var pctVal = (totalOcc > 1) ? (occ / totalOcc) : occ;
+            var pctStr = Math.round(pctVal * 100) + "%";
+            
+            txt.textContent = "L" + line.lineIndex + " - " + pctStr;
             g.appendChild(txt);
           }
         }
@@ -735,7 +748,7 @@
     legendText.setAttribute("font-size", "12");
     legendText.setAttribute("font-weight", "700");
     legendText.setAttribute("fill", "#6b7280");
-    legendText.textContent = t("output_chart_view_stacked") + ": " + formatPercentage(totalOcc);
+    legendText.textContent = "0 - 100%";
     svg.appendChild(legendText);
 
     elGeneralChart.appendChild(svg);
@@ -919,6 +932,7 @@
           renderGeneralChart(lines);
           renderGeneralKpisFromLines(lines);
           rebuildLinesOverviewGrid();
+      rebuildLineRecipeGrid();
           if (typeof window.syncRecipeDependentFields === "function") {
             window.syncRecipeDependentFields();
           }
@@ -1370,18 +1384,25 @@
     var timesPick = document.getElementById("robot-times-pick");
     var timesSlip = document.getElementById("robot-times-slipsheet");
     var timesPallet = document.getElementById("robot-times-pallet");
-    function onTimesInput() {
+    function rebuildAllDashboardOutputs() {
       var lines = computeLineResults();
       renderGeneralChart(lines);
       renderGeneralKpisFromLines(lines);
       rebuildLinesOverviewGrid();
+      rebuildLineRecipeGrid();
       if (typeof window.syncRecipeDependentFields === "function") {
         window.syncRecipeDependentFields();
       }
     }
-    if (timesPick) timesPick.addEventListener("input", onTimesInput);
-    if (timesSlip) timesSlip.addEventListener("input", onTimesInput);
-    if (timesPallet) timesPallet.addEventListener("input", onTimesInput);
+    window.rebuildAllDashboardOutputs = rebuildAllDashboardOutputs;
+    if (timesPick) timesPick.addEventListener("input", rebuildAllDashboardOutputs);
+    if (timesSlip) timesSlip.addEventListener("input", rebuildAllDashboardOutputs);
+    if (timesPallet) timesPallet.addEventListener("input", rebuildAllDashboardOutputs);
+
+    var elPalletTransition = document.getElementById("robot-transition-time");
+    if (elPalletTransition) {
+      elPalletTransition.addEventListener("input", rebuildAllDashboardOutputs);
+    }
 
     window.addEventListener("app-language-changed", function () {
       rebuildLineRecipeGrid();
@@ -1396,6 +1417,9 @@
   }
 
   function renderOutputs(results, status, recipe, robotTimes) {
+    if (typeof rebuildAllDashboardOutputs === "function") {
+      rebuildAllDashboardOutputs();
+    }
     var outputsView = document.getElementById("outputs-view");
     // Indicador principal
     if (elOccupancyValue) {

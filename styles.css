@@ -4016,7 +4016,7 @@ html[data-theme="dark"] #inputs-view .general-bars .chart-legend-label {
 }
 
 html[data-theme="dark"] #inputs-view .general-bars .bar-track {
-  fill: color-mix(in srgb, var(--vs-surface-muted) 72%, var(--vs-surface-elevated) 28%);
+  fill: var(--vs-chart-track);
 }
 
 html[data-theme="dark"] .help-icon {
@@ -4170,7 +4170,7 @@ html[data-theme="dark"] #inputs-view .output-exec-kpi--occupancy.occ--bad {
   --vs-warn: #b7791f;
   --vs-bad: #c53030;
 
-  --vs-chart-track: #cbd5e1;
+  --vs-chart-track: #e8ecf0;
   --vs-chart-required: #8fa1ba;
   --vs-chart-robot-good: #a3d900;
   --vs-chart-robot-warn: #b7791f;
@@ -4277,7 +4277,7 @@ html[data-theme="dark"] {
   --vs-good: #c0ff00;
   --vs-warn: #c4a255;
   --vs-bad: #cf6f6f;
-  --vs-chart-track: #4a4e57;
+  --vs-chart-track: #2a2d33;
   --vs-chart-required: #b9bcc2;
   --vs-chart-robot-good: #c0ff00;
   --vs-chart-robot-warn: #c4a255;
@@ -6572,3 +6572,6 @@ html[data-theme="dark"] .ah-thermo-bar-wrapper {
   border-radius: 4px;
   margin-left: 0.5rem;
 }
+
+.input-field, .header-toolbar input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid #d8dee6; border-radius: 10px; background: #fbfcfd; font-size: 14px; color: #111827; transition: all 0.15s ease; box-sizing: border-box; }
+.input-field:focus, .header-toolbar input:focus { outline: none; border-color: var(--vs-primary); background: #ffffff; box-shadow: 0 0 0 3px var(--vs-focus-ring); }

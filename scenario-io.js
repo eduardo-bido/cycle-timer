@@ -192,6 +192,7 @@
       data: {
         preferences: prefNorm,
         scenario: {
+          projectName: s.projectName != null ? String(s.projectName) : "",
           numberOfLines: n,
           robotModel: s.robotModel,
           palletTransitionTimeS: palletTransitionTimeS,
