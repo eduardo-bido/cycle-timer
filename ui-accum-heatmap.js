@@ -1,8 +1,7 @@
 /**
- * Módulo: Heatmap de Limpeza de Acúmulo Multilinear & Termômetro de Saturação
+ * Módulo: Heatmap de Limpeza de Acúmulo Multilinear & Matriz Dinâmica
  *
- * Renderiza uma matriz N_recipes × N_recipes para 2 linhas,
- * ou um Termômetro de Ocupação Global para 3 a 6 linhas.
+ * Renderiza uma matriz N-dimensional mapeada em 2D usando Canvas Híbrido ou HTML Table.
  */
 (function () {
 
@@ -16,93 +15,11 @@
     return isNaN(n) ? 0 : n;
   }
 
-  // ─── Algoritmo de Colapso Multilinear (Para 2 Linhas - Heatmap) ──────────────
-  function evalCollapseAlgorithm(rec1, rec2, rt1, rt2, palTransS) {
-    if (!rec1 || !rec2 || !rt1 || !rt2) return { overall: "na", details: null };
-
-    var prod1 = parseNum(rec1.productionBpm);
-    var prod2 = parseNum(rec2.productionBpm);
-    if (prod1 <= 0 || prod2 <= 0) return { overall: "na", details: null };
-
-    var cxCam1 = parseNum(rec1.boxesPerLayer);
-    var pickCam1 = parseNum(rec1.picksPerLayer);
-    var tPick1 = parseNum(rt1.cycleTimePickS);
-    var camPallet1 = parseNum(rec1.layersPerPallet);
-    var palPick1 = parseNum(rec1.palletPick);
-    var tPallet1 = parseNum(rt1.cycleTimePalletS);
-    var slipsBottom1 = parseNum(rec1.slipSheetBottom);
-    var slipsBetween1 = parseNum(rec1.slipSheetBetweenLayers);
-    var tSlip1 = parseNum(rt1.cycleTimeSlipSheetS);
-
-    var cxCam2 = parseNum(rec2.boxesPerLayer);
-    var pickCam2 = parseNum(rec2.picksPerLayer);
-    var tPick2 = parseNum(rt2.cycleTimePickS);
-    var camPallet2 = parseNum(rec2.layersPerPallet);
-    var palPick2 = parseNum(rec2.palletPick);
-    var tPallet2 = parseNum(rt2.cycleTimePalletS);
-    var slipsBottom2 = parseNum(rec2.slipSheetBottom);
-    var slipsBetween2 = parseNum(rec2.slipSheetBetweenLayers);
-    var tSlip2 = parseNum(rt2.cycleTimeSlipSheetS);
-
-    if (cxCam1 <= 0 || pickCam1 <= 0 || tPick1 <= 0 || camPallet1 <= 0 ||
-        cxCam2 <= 0 || pickCam2 <= 0 || tPick2 <= 0 || camPallet2 <= 0) {
-      return { overall: "warn", details: null };
-    }
-
-    var pallet1Time = (palPick1 > 0 && tPallet1 > 0) ? (palPick1 * tPallet1) : palTransS;
-    var pallet2Time = (palPick2 > 0 && tPallet2 > 0) ? (palPick2 * tPallet2) : palTransS;
-
-    var slips1Time = (slipsBottom1 + slipsBetween1) * tSlip1;
-    var slips2Time = (slipsBottom2 + slipsBetween2) * tSlip2;
-
-    var tempoApagaoSeg = pallet1Time + slips1Time + pallet2Time + slips2Time + Math.max(tPick1, tPick2);
-
-    var taxaChegadaTotalCxMin = prod1 + prod2;
-    var acumuloInicial = taxaChegadaTotalCxMin * (tempoApagaoSeg / 60);
-
-    var mediaCxPick1 = cxCam1 / pickCam1;
-    var mediaCxPick2 = cxCam2 / pickCam2;
-    var tempoCicloDuplo = tPick1 + tPick2;
-    var taxaRemocaoRoboCxMin = ((mediaCxPick1 + mediaCxPick2) / tempoCicloDuplo) * 60;
-
-    var taxaLimpezaLiquida = taxaRemocaoRoboCxMin - taxaChegadaTotalCxMin;
-
-    if (taxaLimpezaLiquida <= 0) {
-      return {
-        overall: "fail",
-        details: {
-          apagaoS: tempoApagaoSeg,
-          acumulo: acumuloInicial,
-          liquida: taxaLimpezaLiquida,
-          tLimpar: null,
-          tLimite: null,
-          msg: "Robô mais lento que as linhas"
-        }
-      };
-    }
-
-    var tempoParaLimparMin = acumuloInicial / taxaLimpezaLiquida;
-
-    var tempoPallet1Min = (cxCam1 * camPallet1) / prod1;
-    var tempoPallet2Min = (cxCam2 * camPallet2) / prod2;
-    var tempoLimiteMin = Math.min(tempoPallet1Min, tempoPallet2Min);
-
-    var overall = tempoParaLimparMin <= tempoLimiteMin ? "ok" : "fail";
-
-    return {
-      overall: overall,
-      details: {
-        apagaoS: tempoApagaoSeg,
-        acumulo: acumuloInicial,
-        liquida: taxaLimpezaLiquida,
-        tLimpar: tempoParaLimparMin,
-        tLimite: tempoLimiteMin,
-        msg: overall === "ok" ? "Dentro do limite" : "Estoura limite do pallet"
-      }
-    };
+  function getLang() {
+    return window.APP_LANG || "pt";
   }
 
-  // ─── Lógica do Termômetro de Saturação (Para 3 a 6 Linhas) ──────────────────
+  // ─── Lógica do Termômetro de Saturação (Mantida apenas para uso legível ou cálculos individuais de ocupação se necessário) ───
   function calculateLineOccupancy(recipe, rt, palTransS) {
     if (!recipe || !rt) return { weight: 0, tPickMin: 0, tSetupMin: 0, label: "Desligada", empty: true };
     var prod = parseNum(recipe.productionBpm);
@@ -113,11 +30,9 @@
     var cxPerPick = cxCam / pickCam;
     
     var tPick = parseNum(rt.cycleTimePickS);
-    // Passo 1: Tempo Consumido em Picks por Minuto
     var tPickMin = (prod / cxPerPick) * tPick;
 
     var camPallet = parseNum(recipe.layersPerPallet) || 1;
-    // Tempo de Vida do Pallet em Minutos
     var palletLifeTimeMin = (cxCam * camPallet) / prod;
 
     var palPick = parseNum(recipe.palletPick);
@@ -129,10 +44,7 @@
     var tSlip = parseNum(rt.cycleTimeSlipSheetS);
     var slipsTime = (slipsBottom + slipsBetween) * tSlip;
 
-    // Passo 2: Tempo Consumido em Setup por Minuto
     var tSetupMin = (1 / palletLifeTimeMin) * (palletTime + slipsTime);
-
-    // Passo 3: O Peso Individual na Barra do Termômetro (%)
     var weight = ((tPickMin + tSetupMin) / 60) * 100;
 
     return {
@@ -144,7 +56,146 @@
     };
   }
 
-  // ─── Renderização principal ───────────────────────────────────────────────────
+  // ─── Algoritmo de Colapso Multilinear Generalizado para N Linhas ────────────────
+  function evalCollapseAlgorithmMultilinear(comboRecipes, robotTimesList, palTransS) {
+    var validLines = [];
+    for (var k = 0; k < comboRecipes.length; k++) {
+      var rec = comboRecipes[k];
+      var rt = robotTimesList[k];
+      if (!rec || !rt) continue;
+
+      var prod = parseNum(rec.productionBpm);
+      if (prod <= 0) continue;
+
+      var cxCam = parseNum(rec.boxesPerLayer);
+      var pickCam = parseNum(rec.picksPerLayer);
+      var tPick = parseNum(rt.cycleTimePickS);
+      var camPallet = parseNum(rec.layersPerPallet);
+
+      if (cxCam <= 0 || pickCam <= 0 || tPick <= 0 || camPallet <= 0) {
+        return { overall: "warn", details: null };
+      }
+
+      validLines.push({
+        lineIndex: k + 1,
+        recipe: rec,
+        rt: rt,
+        prod: prod,
+        cxCam: cxCam,
+        pickCam: pickCam,
+        tPick: tPick,
+        camPallet: camPallet,
+        palletPick: parseNum(rec.palletPick),
+        tPallet: parseNum(rt.cycleTimePalletS),
+        slipsBottom: parseNum(rec.slipSheetBottom),
+        slipsBetween: parseNum(rec.slipSheetBetweenLayers),
+        tSlip: parseNum(rt.cycleTimeSlipSheetS)
+      });
+    }
+
+    if (validLines.length === 0) {
+      return { overall: "na", details: null };
+    }
+
+    // 1. Tempo de Apagão Simultâneo
+    var totalBlackoutS = 0;
+    var maxPickS = 0;
+    for (var i = 0; i < validLines.length; i++) {
+      var vl = validLines[i];
+      var palletTime = (vl.palletPick > 0 && vl.tPallet > 0) ? (vl.palletPick * vl.tPallet) : palTransS;
+      var slipsTime = (vl.slipsBottom + vl.slipsBetween) * vl.tSlip;
+      totalBlackoutS += (palletTime + slipsTime);
+      if (vl.tPick > maxPickS) {
+        maxPickS = vl.tPick;
+      }
+    }
+    totalBlackoutS += maxPickS;
+
+    // 2. Acúmulo Inicial total
+    var totalArrivalBpm = 0;
+    var initialAccumBoxes = 0;
+    for (var i = 0; i < validLines.length; i++) {
+      var vl = validLines[i];
+      totalArrivalBpm += vl.prod;
+      initialAccumBoxes += vl.prod * (totalBlackoutS / 60);
+    }
+
+    // 3. Taxa de Remoção Compartilhada (Ciclo Único com Picks em todas as linhas)
+    var sharedCycleTimeS = 0;
+    var totalBoxesPerSharedCycle = 0;
+    for (var i = 0; i < validLines.length; i++) {
+      var vl = validLines[i];
+      sharedCycleTimeS += vl.tPick;
+      totalBoxesPerSharedCycle += (vl.cxCam / vl.pickCam);
+    }
+
+    var robotRemovalRateBpm = (totalBoxesPerSharedCycle / sharedCycleTimeS) * 60;
+
+    // 4. Taxa de Limpeza Líquida
+    var netClearingRateBpm = robotRemovalRateBpm - totalArrivalBpm;
+
+    if (netClearingRateBpm <= 0) {
+      return {
+        overall: "fail",
+        details: {
+          apagaoS: totalBlackoutS,
+          acumulo: initialAccumBoxes,
+          liquida: netClearingRateBpm,
+          tLimpar: null,
+          tLimite: null,
+          msg: "Saturação do robô em regime compartilhado"
+        }
+      };
+    }
+
+    // 5. Tempo para Limpar Acúmulo
+    var timeToClearMin = initialAccumBoxes / netClearingRateBpm;
+
+    // 6. Tempo Limite (menor ciclo de pallet ativo)
+    var minPalletLifeTimeMin = Infinity;
+    for (var i = 0; i < validLines.length; i++) {
+      var vl = validLines[i];
+      var palletLifeTimeMin = (vl.cxCam * vl.camPallet) / vl.prod;
+      if (palletLifeTimeMin < minPalletLifeTimeMin) {
+        minPalletLifeTimeMin = palletLifeTimeMin;
+      }
+    }
+
+    var overall = timeToClearMin <= minPalletLifeTimeMin ? "ok" : "fail";
+
+    return {
+      overall: overall,
+      details: {
+        apagaoS: totalBlackoutS,
+        acumulo: initialAccumBoxes,
+        liquida: netClearingRateBpm,
+        tLimpar: timeToClearMin,
+        tLimite: minPalletLifeTimeMin,
+        msg: overall === "ok" ? "Dentro do limite de acúmulo" : "Estoura tempo limite do pallet"
+      }
+    };
+  }
+
+  // Helper para gerar o produto cartesiano
+  function getCombinations(lines, recipes) {
+    if (lines.length === 0) return [[]];
+    var firstLine = lines[0];
+    var restLines = lines.slice(1);
+    var restCombos = getCombinations(restLines, recipes);
+    var result = [];
+    for (var i = 0; i < recipes.length; i++) {
+      var r = recipes[i];
+      for (var j = 0; j < restCombos.length; j++) {
+        var combo = [r].concat(restCombos[j]);
+        result.push(combo);
+      }
+    }
+    return result;
+  }
+
+  // ─── Renderização Principal ───
+  window.evalCollapseAlgorithmMultilinear = evalCollapseAlgorithmMultilinear;
+
   window.runAccumHeatmap = function () {
     var section = document.getElementById("accum-heatmap-section");
     var container = document.getElementById("accum-heatmap-container");
@@ -154,19 +205,41 @@
     var maxLines = linesInput ? (parseInt(linesInput.value, 10) || 1) : 1;
     maxLines = Math.min(Math.max(maxLines, 1), 6);
 
+    // Se houver menos de 2 linhas, desativa o heatmap e o card global
+    var viabilityCard = document.getElementById("accum-viability-card");
     if (maxLines < 2) {
       section.hidden = true;
+      if (viabilityCard) viabilityCard.hidden = true;
       return;
     }
     section.hidden = false;
 
-    var recipes = [];
+    var baseRecipes = [];
     if (typeof window.getCycleTimerRecipeOptions === "function") {
-      recipes = window.getCycleTimerRecipeOptions();
+      baseRecipes = window.getCycleTimerRecipeOptions();
     }
-    if (recipes.length === 0) {
+    if (baseRecipes.length === 0) {
       section.hidden = true;
+      if (viabilityCard) viabilityCard.hidden = true;
       return;
+    }
+
+    // Pré-carrega todas as receitas completas para evitar lentidão e falta de dados
+    var fullRecipes = [];
+    for (var idx = 0; idx < baseRecipes.length; idx++) {
+      var bRec = baseRecipes[idx];
+      var fRec = null;
+      if (typeof window.getCycleTimerRecipeByRowId === "function") {
+        fRec = window.getCycleTimerRecipeByRowId(bRec.id);
+      }
+      if (fRec) {
+        fRec.id = bRec.id;
+        fRec.label = bRec.label;
+        fullRecipes.push(fRec);
+      } else {
+        // Fallback caso a função falhe
+        fullRecipes.push(bRec);
+      }
     }
 
     var palletTransitionEl = document.getElementById("robot-transition-time");
@@ -181,225 +254,279 @@
     var headerDesc = section.querySelector(".panel-description");
     var headerTitle = section.querySelector(".panel-title");
 
-    // ===== MODO: TERMÔMETRO DE SATURAÇÃO (3 a 6 Linhas) =====
-    if (maxLines >= 3) {
-      if (headerTitle) headerTitle.textContent = "Termômetro de Saturação (Carga do Robô)";
-      if (headerDesc) headerDesc.textContent = "O robô possui 60s/min. Avaliando o peso total do setup selecionado nas " + maxLines + " linhas. Se a carga passar de 100%, o sistema colapsará no pior caso simultâneo.";
-
-      var linesData = [];
-      var totalStress = 0;
-
-      for (var i = 1; i <= maxLines; i++) {
-        var recipeId = currentMap[i];
-        var recipe = null;
-        if (recipeId && typeof window.getCycleTimerRecipeByRowId === "function") {
-          recipe = window.getCycleTimerRecipeByRowId(recipeId);
-        }
-        var rtObj = (typeof window.getCycleTimerRobotTimesByLine === "function") 
-          ? window.getCycleTimerRobotTimesByLine(i) 
-          : { cycleTimePickS: 0, cycleTimeSlipSheetS: 0, cycleTimePalletS: 0 };
-        
-        var occ = calculateLineOccupancy(recipe, rtObj, palTransS);
-        linesData.push({ line: i, data: occ });
-        totalStress += occ.weight;
-      }
-
-      var thermoContainer = document.createElement("div");
-      thermoContainer.className = "ah-thermometer-container";
-
-      var barWrapper = document.createElement("div");
-      barWrapper.className = "ah-thermo-bar-wrapper";
-      
-      var barFill = document.createElement("div");
-      barFill.className = "ah-thermo-bar-fill";
-      // Limit visually to 100% so it doesn't break out
-      var visualWidth = Math.min(totalStress, 100);
-      barFill.style.width = visualWidth + "%";
-      
-      var isColapso = totalStress > 100;
-      if (isColapso) {
-        barFill.style.backgroundColor = "var(--vs-danger, #ef4444)";
-      } else if (totalStress > 85) {
-        barFill.style.backgroundColor = "var(--vs-warning, #f59e0b)";
-      } else {
-        barFill.style.backgroundColor = "var(--vs-success, #10b981)";
-      }
-
-      var barText = document.createElement("div");
-      barText.className = "ah-thermo-bar-text";
-      barText.textContent = totalStress.toFixed(1) + "% DE CARGA";
-
-      barWrapper.appendChild(barFill);
-      barWrapper.appendChild(barText);
-      thermoContainer.appendChild(barWrapper);
-
-      var verdict = document.createElement("div");
-      verdict.className = "ah-thermo-verdict " + (isColapso ? "ah-thermo-verdict--fail" : "ah-thermo-verdict--ok");
-      if (isColapso) {
-        verdict.innerHTML = "<strong>\u26A0 ALERTA:</strong> Capacidade de recuperação excedida. O sistema colapsará no próximo apagão simultâneo.";
-      } else {
-        verdict.innerHTML = "<strong>\u2713 OK:</strong> O sistema sobrevive ao apagão simultâneo.";
-      }
-      thermoContainer.appendChild(verdict);
-
-      var list = document.createElement("ul");
-      list.className = "ah-thermo-list";
-      for (var j = 0; j < linesData.length; j++) {
-        var li = document.createElement("li");
-        var d = linesData[j].data;
-        var weightStr = d.empty ? "0%" : d.weight.toFixed(1) + "%";
-        var labelStr = d.label;
-        if (!labelStr) labelStr = "Desligada";
-        
-        li.innerHTML = "<span>Linha " + linesData[j].line + ":</span> <strong>" + labelStr + "</strong> <span class='ah-thermo-weight'>" + weightStr + "</span>";
-        list.appendChild(li);
-      }
-      thermoContainer.appendChild(list);
-
-      container.appendChild(thermoContainer);
-      return;
-    }
-
-    // ===== MODO: HEATMAP DE COLAPSO (2 Linhas) =====
     if (headerTitle) headerTitle.textContent = t("accum_heatmap_title");
-    if (headerDesc) headerDesc.textContent = t("accum_heatmap_desc");
-
-    var rtL1 = (typeof window.getCycleTimerRobotTimesByLine === "function")
-      ? window.getCycleTimerRobotTimesByLine(1)
-      : { cycleTimePickS: 0, cycleTimeSlipSheetS: 0, cycleTimePalletS: 0 };
-    var rtL2 = (typeof window.getCycleTimerRobotTimesByLine === "function")
-      ? window.getCycleTimerRobotTimesByLine(2)
-      : { cycleTimePickS: 0, cycleTimeSlipSheetS: 0, cycleTimePalletS: 0 };
-
-    var wrapper = document.createElement("div");
-    wrapper.className = "ah-wrapper";
-
-    var table = document.createElement("table");
-    table.className = "ah-table";
-
-    var thead = document.createElement("thead");
-    var headerRow = document.createElement("tr");
-
-    var cornerTh = document.createElement("th");
-    cornerTh.className = "ah-corner";
-    var cornerInner = document.createElement("div");
-    cornerInner.className = "ah-corner-labels";
-    var cornerL1 = document.createElement("span");
-    cornerL1.textContent = t("output_line_prefix") + " 1";
-    var cornerSep = document.createElement("span");
-    cornerSep.className = "ah-corner-sep";
-    cornerSep.textContent = "\u2572";
-    var cornerL2 = document.createElement("span");
-    cornerL2.textContent = t("output_line_prefix") + " 2";
-    cornerInner.appendChild(cornerL1);
-    cornerInner.appendChild(cornerSep);
-    cornerInner.appendChild(cornerL2);
-    cornerTh.appendChild(cornerInner);
-    headerRow.appendChild(cornerTh);
-
-    for (var ci = 0; ci < recipes.length; ci++) {
-      var colHead = document.createElement("th");
-      colHead.className = "ah-col-header";
-      colHead.textContent = recipes[ci].label;
-      colHead.title = recipes[ci].label;
-      if (currentMap[2] === String(recipes[ci].id)) {
-        colHead.classList.add("ah-col-header--active");
-      }
-      headerRow.appendChild(colHead);
+    if (headerDesc) {
+      headerDesc.textContent = (getLang() === "en")
+        ? "Evaluation of the robot's capacity to clear initial accumulation from simultaneous outages across all active lines."
+        : "Avaliação da capacidade do robô de limpar o acúmulo inicial pós-apagão simultâneo em todas as linhas ativas.";
     }
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
 
-    var tbody = document.createElement("tbody");
-    for (var ri = 0; ri < recipes.length; ri++) {
-      var recipeI = (typeof window.getCycleTimerRecipeByRowId === "function")
-        ? window.getCycleTimerRecipeByRowId(recipes[ri].id) : null;
+    // Gerar eixos de divisão para N dimensões
+    var activeLines = [];
+    for (var i = 1; i <= maxLines; i++) {
+      activeLines.push(i);
+    }
 
-      var row = document.createElement("tr");
+    var numYLines = Math.ceil(activeLines.length / 2);
+    var yLines = activeLines.slice(0, numYLines);
+    var xLines = activeLines.slice(numYLines);
 
-      var rowLabelTh = document.createElement("th");
-      rowLabelTh.className = "ah-row-label";
-      rowLabelTh.textContent = recipes[ri].label;
-      rowLabelTh.title = recipes[ri].label;
-      if (currentMap[1] === String(recipes[ri].id)) {
-        rowLabelTh.classList.add("ah-row-label--active");
-      }
-      row.appendChild(rowLabelTh);
+    // Gerar combinações
+    var yCombinations = getCombinations(yLines, fullRecipes);
+    var xCombinations = getCombinations(xLines, fullRecipes);
 
-      for (var cj = 0; cj < recipes.length; cj++) {
-        var recipeJ = (typeof window.getCycleTimerRecipeByRowId === "function")
-          ? window.getCycleTimerRecipeByRowId(recipes[cj].id) : null;
+    var numRows = yCombinations.length;
+    var numCols = xCombinations.length;
+    var totalCells = numRows * numCols;
 
-        var result = evalCollapseAlgorithm(recipeI, recipeJ, rtL1, rtL2, palTransS);
-        var overall = result.overall;
-        var details = result.details;
+    // ─── 1. Pré-cálculo de todos os dados do Grid ───
+    var gridData = [];
+    var okCount = 0;
+    var totalActiveCells = 0;
 
-        var cell = document.createElement("td");
-        cell.className = "ah-cell";
-
-        if (ri === cj) cell.classList.add("ah-cell--diagonal");
-
-        if (currentMap[1] === String(recipes[ri].id) && currentMap[2] === String(recipes[cj].id)) {
-          cell.classList.add("ah-cell--selected");
-        }
-
-        cell.classList.add("ah-cell--" + overall);
-
-        var icon = document.createElement("span");
-        icon.className = "ah-cell-icon";
-        icon.textContent = overall === "ok" ? "\u2713" : (overall === "fail" ? "\u2717" : "\u2014");
-        cell.appendChild(icon);
-
-        var tooltipParts = [];
-        if (recipeI) tooltipParts.push("L1: " + recipes[ri].label);
-        if (recipeJ) tooltipParts.push("L2: " + recipes[cj].label);
+    for (var r = 0; r < numRows; r++) {
+      gridData[r] = [];
+      var yCombo = yCombinations[r];
+      for (var c = 0; c < numCols; c++) {
+        var xCombo = xCombinations[c];
         
-        if (details) {
-          tooltipParts.push("");
-          tooltipParts.push("Apag\u00E3o Simult\u00E2neo: " + details.apagaoS.toFixed(1) + "s");
-          tooltipParts.push("Ac\u00FAmulo Inicial: " + details.acumulo.toFixed(1) + " cx");
-          tooltipParts.push("Taxa Limpeza L\u00EDq.: " + details.liquida.toFixed(1) + " cx/min");
-          
-          if (details.tLimpar !== null) {
-            tooltipParts.push("Tempo p/ Limpar: " + details.tLimpar.toFixed(2) + " min");
-            tooltipParts.push("Limite (Menor Pallet): " + details.tLimite.toFixed(2) + " min");
+        // Reconstrói a receita por linha para esta célula
+        var fullCombo = [];
+        for (var l = 1; l <= maxLines; l++) {
+          var yIdx = yLines.indexOf(l);
+          if (yIdx !== -1) {
+            fullCombo[l - 1] = yCombo[yIdx];
+          } else {
+            var xIdx = xLines.indexOf(l);
+            if (xIdx !== -1) {
+              fullCombo[l - 1] = xCombo[xIdx];
+            } else {
+              fullCombo[l - 1] = null;
+            }
           }
-          tooltipParts.push("Status: " + details.msg);
-        } else {
-          tooltipParts.push("Status: " + (overall === "warn" ? "Dados Incompletos" : "N/D"));
         }
-        
-        cell.title = tooltipParts.join("\n");
 
-        (function (rId, cId) {
-          cell.addEventListener("click", function () {
-            var newMap = {};
-            if (typeof window.getCycleTimerLineRecipeMap === "function") {
-              var old = window.getCycleTimerLineRecipeMap();
-              for (var k in old) newMap[k] = old[k];
-            }
-            newMap[1] = String(rId);
-            newMap[2] = String(cId);
-            if (typeof window.applyCycleTimerLineRecipeMap === "function") {
-              window.applyCycleTimerLineRecipeMap(newMap);
-            }
-            if (typeof window.rebuildCycleTimerOutputGrids === "function") {
-              window.rebuildCycleTimerOutputGrids();
-            }
-            if (window.showCycleTimerInsight) {
-              window.showCycleTimerInsight("Combina\u00E7\u00E3o aplicada", recipes[ri - (ri - ri)].label + " / " + recipes[cj - (cj - cj)].label, "success");
-            }
-          });
-        })(recipes[ri].id, recipes[cj].id);
+        // Obtém tempos do robô por linha
+        var rtList = [];
+        for (var l = 1; l <= maxLines; l++) {
+          var rtObj = (typeof window.getCycleTimerRobotTimesByLine === "function")
+            ? window.getCycleTimerRobotTimesByLine(l)
+            : { cycleTimePickS: 0, cycleTimeSlipSheetS: 0, cycleTimePalletS: 0 };
+          rtList[l - 1] = rtObj;
+        }
 
-        row.appendChild(cell);
+        var res = evalCollapseAlgorithmMultilinear(fullCombo, rtList, palTransS);
+        gridData[r][c] = {
+          yCombo: yCombo,
+          xCombo: xCombo,
+          fullCombo: fullCombo,
+          result: res
+        };
+
+        if (res.overall !== "na" && res.overall !== "warn") {
+          totalActiveCells++;
+          if (res.overall === "ok") {
+            okCount++;
+          }
+        }
       }
-      tbody.appendChild(row);
     }
-    table.appendChild(tbody);
-    wrapper.appendChild(table);
 
-    container.appendChild(wrapper);
+    // ─── 2. Atualizar Card Global de Viabilidade ───
+    if (viabilityCard) {
+      viabilityCard.hidden = false;
+      var pct = totalActiveCells > 0 ? (okCount / totalActiveCells) * 100 : 0;
+      
+      var viabilityTitleEl = viabilityCard.querySelector(".accum-viability-title");
+      if (viabilityTitleEl) {
+        viabilityTitleEl.textContent = (getLang() === "en") ? "Global System Robustness" : "Robustez Global do Sistema";
+      }
+
+      var viabilityTextEl = document.getElementById("accum-viability-text");
+      var viabilityBarFillEl = document.getElementById("accum-viability-bar-fill");
+      
+      if (viabilityTextEl) {
+        if (getLang() === "en") {
+          viabilityTextEl.innerHTML = "<div style='display:flex; align-items: baseline; gap: 12px;'><span style='font-size: 24px; font-weight: 800; color: var(--vs-primary);'>" + pct.toFixed(1) + "%</span> <span style='font-size: 13px; color: #64748b;'>of combinations clear the accumulation (" + okCount + " of " + totalActiveCells + ")</span></div>";
+        } else {
+          viabilityTextEl.innerHTML = "<div style='display:flex; align-items: baseline; gap: 12px;'><span style='font-size: 24px; font-weight: 800; color: var(--vs-primary);'>" + pct.toFixed(1) + "%</span> <span style='font-size: 13px; color: #64748b;'>das combinações de receitas conseguem limpar o acúmulo (" + okCount + " de " + totalActiveCells + ")</span></div>";
+        }
+      }
+      
+      if (viabilityBarFillEl) {
+        viabilityBarFillEl.style.width = pct + "%";
+        viabilityBarFillEl.className = "accum-viability-bar-fill";
+        if (pct > 80) {
+          viabilityBarFillEl.classList.add("accum-viability-bar-fill--success");
+        } else if (pct > 50) {
+          viabilityBarFillEl.classList.add("accum-viability-bar-fill--warning");
+        } else {
+          viabilityBarFillEl.classList.add("accum-viability-bar-fill--danger");
+        }
+      }
+    }
+
+    // ─── 3. Extração e Renderização da "Lista de Problemas" ───
+    var failedCombinations = [];
+    for (var ri = 0; ri < numRows; ri++) {
+      for (var ci = 0; ci < numCols; ci++) {
+        var cell = gridData[ri][ci];
+        if (cell.result.overall !== "ok") {
+          failedCombinations.push(cell);
+        }
+      }
+    }
+
+    function applyCombination(cellData) {
+      var newMap = {};
+      if (typeof window.getCycleTimerLineRecipeMap === "function") {
+        var old = window.getCycleTimerLineRecipeMap();
+        for (var k in old) newMap[k] = old[k];
+      }
+
+      var combinationLabels = [];
+      for (var l = 1; l <= maxLines; l++) {
+        var rec = cellData.fullCombo[l - 1];
+        if (rec) {
+          newMap[l] = String(rec.id);
+          combinationLabels.push("L" + l + ": " + rec.label);
+        }
+      }
+
+      if (typeof window.applyCycleTimerLineRecipeMap === "function") {
+        window.applyCycleTimerLineRecipeMap(newMap);
+      }
+      if (typeof window.rebuildCycleTimerOutputGrids === "function") {
+        window.rebuildCycleTimerOutputGrids();
+      }
+
+      window.runAccumHeatmap();
+
+      if (window.showCycleTimerInsight) {
+        var insightTitle = (getLang() === "en") ? "Combination applied" : "Combinação aplicada";
+        window.showCycleTimerInsight(insightTitle, combinationLabels.join(" | "), "success");
+      }
+    }
+
+    var listContainer = document.createElement("div");
+    listContainer.className = "heatmap-failures-list";
+    listContainer.style.marginTop = "24px";
+    listContainer.style.display = "flex";
+    listContainer.style.flexDirection = "column";
+    listContainer.style.gap = "4px";
+
+
+    if (failedCombinations.length === 0) {
+      var successMsg = document.createElement("div");
+      successMsg.style.padding = "24px";
+      successMsg.style.textAlign = "center";
+      successMsg.style.color = "#10b981";
+      successMsg.style.fontWeight = "600";
+      successMsg.style.fontSize = "16px";
+      successMsg.textContent = (getLang() === "en") 
+        ? "🎉 All combinations successfully clear the accumulation!" 
+        : "🎉 Todas as combinações limpam o acúmulo com sucesso!";
+      listContainer.appendChild(successMsg);
+    } else {
+      var listTitle = document.createElement("div");
+      listTitle.style.fontWeight = "600";
+      listTitle.style.fontSize = "14px";
+      listTitle.style.color = "#1e293b";
+      listTitle.style.marginBottom = "8px";
+      listTitle.textContent = (getLang() === "en")
+        ? "Combinations failing to clear accumulation (" + failedCombinations.length + " found):"
+        : "Combinações que não atendem limpeza de acúmulo (" + failedCombinations.length + " encontradas):";
+      listContainer.appendChild(listTitle);
+
+      var ul = document.createElement("ul");
+      ul.style.listStyle = "none";
+      ul.style.margin = "0";
+      ul.style.padding = "0";
+      listContainer.appendChild(ul);
+
+      var maxFailuresToShow = 200;
+      var displayedFailures = failedCombinations.slice(0, maxFailuresToShow);
+
+      for (var i = 0; i < displayedFailures.length; i++) {
+        var cData = displayedFailures[i];
+        
+        var li = document.createElement("li");
+        li.style.display = "flex";
+        li.style.alignItems = "baseline";
+        li.style.padding = "6px 0";
+        li.style.borderBottom = "1px solid #e2e8f0";
+        li.style.fontSize = "13px";
+        li.style.color = "#475569";
+        li.style.cursor = "pointer";
+        li.style.transition = "color 0.15s";
+        
+        var isCurrent = true;
+        for (var l = 1; l <= maxLines; l++) {
+          var activeRecId = currentMap[l];
+          var comboRec = cData.fullCombo[l - 1];
+          if (activeRecId) {
+            if (!comboRec || String(comboRec.id) !== String(activeRecId)) {
+              isCurrent = false;
+              break;
+            }
+          } else {
+            if (comboRec) {
+              isCurrent = false;
+              break;
+            }
+          }
+        }
+
+        if (isCurrent) {
+          li.style.color = "#0f172a";
+          li.style.fontWeight = "600";
+          li.dataset.current = "true";
+        }
+
+        li.onmouseover = function() { this.style.color = "#0f172a"; };
+        li.onmouseout = function() { if(!this.dataset.current) this.style.color = "#475569"; };
+
+        var comboTexts = [];
+        for (var lineIdx = 0; lineIdx < cData.fullCombo.length; lineIdx++) {
+           var rec = cData.fullCombo[lineIdx];
+           comboTexts.push("L" + (lineIdx + 1) + ": " + (rec ? rec.label : "Desligada"));
+        }
+        var textCombo = comboTexts.join(" | ");
+
+        var textReason = "";
+        if (cData.result.overall === "warn") {
+          textReason = (getLang() === "en") ? "Incomplete data" : "Dados incompletos";
+        }
+
+        var dotColor = cData.result.overall === "fail" ? "#ef4444" : "#f59e0b";
+        var dot = "<span style='color: " + dotColor + "; margin-right: 8px; font-size: 14px;'>●</span>";
+
+        var suffix = textReason ? " <span style='color: #94a3b8; margin-left: 8px;'>— " + textReason + "</span>" : "";
+        li.innerHTML = dot + "<span>" + textCombo + "</span>" + suffix;
+
+        (function(boundData, el) {
+          el.addEventListener("click", function() {
+            applyCombination(boundData);
+          });
+        })(cData, li);
+
+        ul.appendChild(li);
+      }
+
+      if (failedCombinations.length > maxFailuresToShow) {
+         var moreMsg = document.createElement("div");
+         moreMsg.style.textAlign = "center";
+         moreMsg.style.padding = "12px";
+         moreMsg.style.fontSize = "13px";
+         moreMsg.style.color = "#64748b";
+         moreMsg.textContent = (getLang() === "en")
+           ? "...and " + (failedCombinations.length - maxFailuresToShow) + " more combinations not shown."
+           : "...e outras " + (failedCombinations.length - maxFailuresToShow) + " combinações omitidas.";
+         listContainer.appendChild(moreMsg);
+      }
+    }
+
+    container.appendChild(listContainer);
 
     if (typeof window.initHelpTooltipsForRoot === "function") {
       window.initHelpTooltipsForRoot(container);

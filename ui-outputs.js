@@ -491,18 +491,29 @@
 
     var canClearAccumGeneral = null; // null = sem dados; true = todas ok; false = alguma falhou
     var hasValidLines = false;
+    var comboRecipes = [];
+    var robotTimesList = [];
+
     for (var i = 0; i < lines.length; i++) {
       if (isLineValidForGeneral(lines[i])) {
          hasValidLines = true;
-         var lineOverall = lines[i].results && lines[i].results.canClearAccumulation
-           ? lines[i].results.canClearAccumulation.overall
-           : null;
-         // IF ALL lines TRUE → overall true. Qualquer false ou null quebra a cadeia.
-         if (lineOverall !== true) {
-            canClearAccumGeneral = false;
-         } else if (canClearAccumGeneral !== false) {
-            canClearAccumGeneral = true;
-         }
+      }
+      comboRecipes.push(lines[i].recipe);
+      robotTimesList.push(lines[i].robotTimes);
+    }
+
+    if (hasValidLines && typeof window.evalCollapseAlgorithmMultilinear === "function") {
+      var globalPalletTransitionS = 0;
+      var tInput = document.getElementById("pallet-transition-time-s");
+      if (tInput) {
+        var v = parseFloat(tInput.value.replace(",", "."));
+        if (!isNaN(v)) globalPalletTransitionS = v;
+      }
+      var collapseRes = window.evalCollapseAlgorithmMultilinear(comboRecipes, robotTimesList, globalPalletTransitionS);
+      if (collapseRes.overall === "ok") {
+        canClearAccumGeneral = true;
+      } else if (collapseRes.overall === "fail") {
+        canClearAccumGeneral = false;
       }
     }
 
@@ -1074,21 +1085,23 @@
       var r = lineEntry.results;
       var recipeLabel = recipeLabelById[mappedId] || "—";
 
-      // TOPO (RESULTADOS PRINCIPAIS) — faixa horizontal sem caixas individuais
+      // TOPO (RESULTADOS PRINCIPAIS) — faixa horizontal com caixas individuais (KPIs executivos)
       var topBand = document.createElement("div");
-      topBand.className = "output-line-topband";
+      topBand.className = "output-line-kpi-exec-grid";
 
       var occ = r.robotOccupancyRate;
       var occCls = getOccupancyClassFromRate(occ);
 
       function makeItem(label, valueText, valueClass, helpKey) {
         var item = document.createElement("div");
-        item.className = "output-line-topband-item";
+        item.className = "output-exec-kpi";
+        if (helpKey === "robotOccupancyRate") {
+          item.classList.add("output-exec-kpi--occupancy");
+        }
 
         var l = document.createElement("div");
-        l.className = "output-line-topband-label";
+        l.className = "output-exec-kpi-label";
         var lText = document.createElement("span");
-        lText.className = "output-line-topband-label-text";
         lText.textContent = label;
         l.appendChild(lText);
         if (helpKey) {
@@ -1100,13 +1113,29 @@
           l.appendChild(lHelp);
         }
 
+        var vRow = document.createElement("div");
+        vRow.className = "output-exec-kpi-value-row";
+
         var v = document.createElement("div");
-        v.className = "output-line-topband-value";
-        if (valueClass) v.classList.add.apply(v.classList, valueClass.split(" "));
+        v.className = "output-exec-kpi-value";
+        if (helpKey === "robotOccupancyRate") {
+          v.classList.add("output-exec-occupancy-value");
+        }
+        if (valueClass) {
+          if (valueClass.indexOf('occ--') !== -1) {
+            v.classList.add(valueClass);
+          } else if (valueClass === "txt-ok") {
+            vRow.style.color = "var(--vs-good)";
+          } else if (valueClass === "txt-fail") {
+            vRow.style.color = "var(--vs-bad)";
+          }
+        }
         v.textContent = valueText || "—";
 
+        vRow.appendChild(v);
         item.appendChild(l);
-        item.appendChild(v);
+        item.appendChild(vRow);
+        
         return item;
       }
 
@@ -1131,17 +1160,6 @@
         "robotOccupancyRate"
       );
       if (occCls) occItem.classList.add("occ-signal", occCls);
-
-      // Limpa Acúmulo? — KPI #2 (mais importante depois de ocupação)
-      var canClear = r.canClearAccumulation ? r.canClearAccumulation.overall : null;
-      var canClearValue = canClear === true ? "✅" : (canClear === false ? "❌" : "—");
-      var canClearCls = canClear === true ? "txt-ok" : (canClear === false ? "txt-fail" : "");
-      var canClearItem = makeItem(
-        t("output_top_can_clear_accum").toUpperCase(),
-        canClearValue,
-        canClearCls,
-        "canClearAccumulation"
-      );
 
       // Ciclos/min
       var cpmValue = isValidNumber(r.cyclesNumberPerMinute)
@@ -1173,7 +1191,6 @@
       );
 
       topBand.appendChild(occItem);
-      topBand.appendChild(canClearItem);
       topBand.appendChild(cpmItem);
       topBand.appendChild(reqItem);
       topBand.appendChild(maxAccumItem);
@@ -1254,11 +1271,6 @@
       sectionFInner.className = "output-line-section-body";
       addRow(sectionFInner, t("output_row_accum_time_exchange"), formatOptionalSeconds(r.accumulationTimeToPalletExchangeS), "accumulationTimeToPalletExchangeS");
       addRow(sectionFInner, t("output_row_pallet_transition"), formatOptionalSeconds(r.effectivePalletTransitionS), "palletTransitionTime");
-      
-      var canClear = (r.canClearAccumulation && typeof r.canClearAccumulation === 'object') ? r.canClearAccumulation.overall : r.canClearAccumulation;
-      var canClearText = canClear === true ? (t("output_accum_ok") || "Sim") : (canClear === false ? (t("output_accum_fail") || "Não") : "—");
-      var canClearClass = canClear === true ? "txt-ok" : (canClear === false ? "txt-fail" : "");
-      addRow(sectionFInner, t("output_row_can_clear_accum"), canClearText, "canClearAccumulation", canClearClass);
       
       addRow(sectionFInner, t("output_row_net_removal"), isValidNumber(r.netRemovalBoxesPerSecond) ? formatNumber2(r.netRemovalBoxesPerSecond) : "—", "netRemovalBoxesPerSecond");
 

@@ -36,7 +36,7 @@
   };
 
   /**
-   * Renderiza a Card Matrix.
+   * Renderiza a Matriz em formato de Grid Moderno (sem tabelas pesadas).
    */
   function renderCardMatrix(recipes, maxLines, container) {
     container.innerHTML = ""; // Limpa conteúdo anterior
@@ -46,45 +46,34 @@
       ? window.getCycleTimerLineRecipeMap() 
       : {};
 
-    // 1. Linha de Cabeçalho (Eixo X - Linhas)
-    var headerRow = document.createElement("div");
-    headerRow.className = "fm-row fm-row--header";
-    
-    var corner = document.createElement("div");
-    corner.className = "fm-sku-label fm-sku-label--header";
-    corner.textContent = t("feasibility_col_recipe");
-    headerRow.appendChild(corner);
+    var grid = document.createElement("div");
+    grid.className = "fm-modern-grid";
+    grid.style.gridTemplateColumns = "240px repeat(" + maxLines + ", 110px)";
 
-    var headerCells = document.createElement("div");
-    headerCells.className = "fm-cells-container";
+    // 1. Cabeçalhos
+    var headerCorner = document.createElement("div");
+    headerCorner.className = "fm-modern-header-cell fm-modern-sku-cell";
+    headerCorner.textContent = t("feasibility_col_recipe");
+    grid.appendChild(headerCorner);
+
     for (var L = 1; L <= maxLines; L++) {
       var hCell = document.createElement("div");
-      hCell.className = "fm-header-cell";
+      hCell.className = "fm-modern-header-cell";
       hCell.textContent = t("output_line_prefix") + " " + L;
-      headerCells.appendChild(hCell);
+      grid.appendChild(hCell);
     }
-    headerRow.appendChild(headerCells);
-    container.appendChild(headerRow);
 
-    // 2. Linhas de SKU (Eixo Y)
+    // 2. Células de Dados
     recipes.forEach(function (recipeData) {
       var recipe = (typeof window.getCycleTimerRecipeByRowId === "function")
         ? window.getCycleTimerRecipeByRowId(recipeData.id)
         : null;
       if (!recipe) return;
 
-      var row = document.createElement("div");
-      row.className = "fm-row";
-
-      // Nome do SKU (Lateral)
       var skuLabel = document.createElement("div");
-      skuLabel.className = "fm-sku-label";
+      skuLabel.className = "fm-modern-sku-cell";
       skuLabel.textContent = recipeData.label;
-      row.appendChild(skuLabel);
-
-      // Container de Cards de Resultado
-      var cardsContainer = document.createElement("div");
-      cardsContainer.className = "fm-cells-container";
+      grid.appendChild(skuLabel);
 
       for (var lineIdx = 1; lineIdx <= maxLines; lineIdx++) {
         var robotTimes = (typeof window.getCycleTimerRobotTimesByLine === "function")
@@ -108,9 +97,6 @@
         }
 
         var occ = (res && typeof res.robotOccupancyRate === "number") ? res.robotOccupancyRate : null;
-        
-        // Se produção ou tempo de pick for 0, o cálculo é tecnicamente 0 mas visualmente incompleto.
-        // Mostramos '-' para evitar confusão se o dado fundamental não existir.
         var hasBaseData = recipe.productionBpm > 0 && robotTimes.cycleTimePickS > 0;
         if (!hasBaseData) occ = null;
 
@@ -118,38 +104,36 @@
           ? window.getCycleTimerOccupancyClass(occ)
           : "";
 
-        var card = document.createElement("div");
-        card.className = "fm-card";
-        
+        var cell = document.createElement("div");
+        cell.className = "fm-modern-value-cell";
+
         if (statusClass) {
-          card.classList.add("fm-card--" + statusClass.replace("occ--", ""));
+          cell.classList.add("fm-modern-text--" + statusClass.replace("occ--", ""));
         }
 
-        // Seleção ativa
         if (currentMap[lineIdx] === String(recipeData.id)) {
-          card.classList.add("fm-card--selected");
+          cell.classList.add("fm-modern-value-cell--selected");
         }
 
-        var html = "";
         if (occ !== null && !isNaN(occ)) {
-          html = '<div class="fm-card-value">' + (occ * 100).toFixed(1) + '%</div>';
+          cell.innerHTML = "<span class='fm-dot'>●</span>" + (occ * 100).toFixed(1) + "%";
         } else {
-          html = '<div class="fm-card-value fm-card-value--empty">—</div>';
+          cell.textContent = "—";
+          cell.classList.add("fm-modern-text--empty");
         }
-        card.innerHTML = html;
 
         // Clique para aplicar
         (function (lIdx, rId) {
-          card.addEventListener("click", function () {
+          cell.addEventListener("click", function () {
             applyRecipeToLine(lIdx, rId);
           });
         })(lineIdx, recipeData.id);
 
-        cardsContainer.appendChild(card);
+        grid.appendChild(cell);
       }
-      row.appendChild(cardsContainer);
-      container.appendChild(row);
     });
+
+    container.appendChild(grid);
   }
 
   /**

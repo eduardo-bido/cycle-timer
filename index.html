@@ -18,8 +18,11 @@
       </div>
 
       <div class="header-toolbar">
-        <div class="header-tabs" role="tablist" data-i18n-aria-label="header_tabs_aria" aria-label="Navegação principal">
-          <button class="tab-button app-tab" data-tab="outputs" type="button" data-i18n="tabs_outputs">OUTPUTS</button>
+        <div class="header-modules">
+          <button class="module-btn active" data-module="palletizing" data-i18n="module_palletizing">PALETIZAÇÃO</button>
+          <button class="module-btn" data-module="compact" data-i18n="module_compact">TRF COMPACT</button>
+          <button class="module-btn" data-module="buffer" data-i18n="module_buffer">BUFFER</button>
+          <button class="module-btn" data-module="field" data-i18n="module_field">CAMPO</button>
         </div>
         <div class="header-actions">
           <button class="lang-toggle" id="lang-toggle" type="button" title="Idioma" data-i18n-title="lang_toggle_title" data-i18n-aria-label="lang_toggle_aria">
@@ -57,12 +60,12 @@
           </div>
         </div>
       </div>
-      <button type="button" class="app-tab app-tab--active" data-tab="inputs" id="app-tab-inputs" hidden tabindex="-1" aria-hidden="true"></button>
       <button type="button" class="app-tab" data-tab="help" id="app-tab-help" hidden tabindex="-1" aria-hidden="true"></button>
     </div>
 
     <main class="app-main">
-      <!-- INPUTS VIEW -->
+      <div id="module-palletizing" class="app-module is-active">
+        <!-- INPUTS VIEW -->
       <section id="inputs-view" class="view view--active" aria-labelledby="tab-inputs">
         <div class="io-layout">
           <button id="restore-inputs-btn" class="restore-inputs-btn" aria-label="Restaurar Entradas" title="Mostrar painel de entrada" hidden>
@@ -98,8 +101,21 @@
                     </label>
                     <select id="robot-model" class="field-input">
                       <option value="">Selecione...</option>
-                      <option value="KR140">KR140</option>
-                      <option value="KR240">KR240</option>
+                      <optgroup label="KUKA">
+                        <option value="KR140">KR140</option>
+                        <option value="KR240">KR240</option>
+                        <option value="KR 120 R3200 PA">KR 120 R3200 PA</option>
+                        <option value="KR 180 R3200 PA">KR 180 R3200 PA</option>
+                        <option value="KR 240 R3200 PA">KR 240 R3200 PA</option>
+                        <option value="KR 300-2 PA">KR 300-2 PA</option>
+                        <option value="KR 470-2 PA">KR 470-2 PA</option>
+                        <option value="KR 700 PA">KR 700 PA</option>
+                      </optgroup>
+                      <optgroup label="ABB">
+                        <option value="IRB 460">IRB 460</option>
+                        <option value="IRB 660">IRB 660</option>
+                        <option value="IRB 760">IRB 760</option>
+                      </optgroup>
                     </select>
                   </div>
 
@@ -220,7 +236,7 @@
                 </div>
 
                 <div class="robot-config-row" style="margin-top: 12px; margin-bottom: 12px;">
-                  <div class="field" style="max-width: 50%;">
+                  <div class="field">
                     <label for="robot-transition-time" class="field-label">
                       <span data-i18n="in_robot_transition">Tempo transição pallet (s)</span>
                       <span class="help-icon" data-help-key="palletTransitionTime" data-i18n-aria-label="tooltip_helpTitle">?</span>
@@ -459,12 +475,12 @@
                 </section>
                 
                 <!-- Bloco 4: Matriz de Viabilidade -->
-                <section class="panel feasibility-matrix-section">
-                  <header class="panel-header panel-header--row">
-                    <h2 class="panel-title" data-i18n="feasibility_matrix_title">Matriz de Viabilidade Técnico-Operacional</h2>
+                <section class="vs-card vs-card--main feasibility-matrix-section">
+                  <header class="vs-card__header">
+                    <h2 class="vs-card__title" data-i18n="feasibility_matrix_title">Taxa de Ocupação por Linha</h2>
                   </header>
-                  <div class="panel-body">
-                    <p class="panel-description" data-i18n="feasibility_matrix_desc">Esta análise testa cada receita individualmente contra cada linha configurada para verificar a compatibilidade técnica isolada.</p>
+                  <div class="vs-card__content">
+
                     <div class="feasibility-matrix-container" id="feasibility-matrix-container">
                       <div id="feasibility-matrix-grid" class="fm-grid">
                         <!-- JS will render the Card Matrix here -->
@@ -474,13 +490,22 @@
                 </section>
 
                 <!-- Bloco 5: Heatmap de Limpeza de Acúmulo -->
-                <section class="panel accum-heatmap-section" id="accum-heatmap-section" hidden>
-                  <header class="panel-header panel-header--row">
-                    <h2 class="panel-title" data-i18n="accum_heatmap_title">Heatmap de Limpeza de Acúmulo</h2>
+                <section class="vs-card vs-card--main accum-heatmap-section" id="accum-heatmap-section" hidden>
+                  <header class="vs-card__header">
+                    <h2 class="vs-card__title" data-i18n="accum_heatmap_title">Análise de Limpeza de Acúmulo</h2>
                     <span class="help-icon" data-help-key="accumHeatmap" data-i18n-aria-label="tooltip_helpTitle">?</span>
                   </header>
-                  <div class="panel-body">
-                    <p class="panel-description" data-i18n="accum_heatmap_desc">Simulação avalia a capacidade do robô de limpar o acúmulo gerado pelo pior caso simultâneo em ambas as linhas.</p>
+                  <div class="vs-card__content">
+
+                    
+                    <!-- Indicador de Viabilidade Global -->
+                    <div class="accum-viability-card" id="accum-viability-card" hidden>
+                      <div class="accum-viability-text" id="accum-viability-text"></div>
+                      <div class="accum-viability-bar-wrapper">
+                        <div class="accum-viability-bar-fill" id="accum-viability-bar-fill"></div>
+                      </div>
+                    </div>
+
                     <div class="accum-heatmap-container" id="accum-heatmap-container">
                       <!-- JS renderiza o heatmap aqui -->
                     </div>
@@ -774,6 +799,8 @@
           </div>
       </section>
 
+      </div> <!-- End module-palletizing -->
+
       <!-- HELP VIEW -->
       <section id="help-view" class="view" data-i18n-aria-label="tabs_help" aria-label="HELP" hidden>
         <div class="help-view-bar">
@@ -786,6 +813,252 @@
         </div>
         <div class="help-container"></div>
       </section>
+
+      <!-- MODULE: BUFFER -->
+      <div id="module-buffer" class="app-module" hidden>
+        <section id="buffer-inputs-view" class="view view--active" aria-labelledby="tab-inputs">
+          <div style="padding: 40px; display: flex; align-items: center; justify-content: center; height: 100%;">
+            <div class="card" style="max-width: 500px; padding: 30px; text-align: center;">
+              <h2 class="card-title" style="font-size: 20px; color: var(--vs-primary); margin-bottom: 12px;" data-i18n="module_buffer_title">Buffer</h2>
+              <p style="color: #667085; font-size: 14px;" data-i18n="module_buffer_desc">Em breve: Módulo de análise de buffer.</p>
+            </div>
+          </div>
+        </section>
+        <section id="buffer-outputs-view" class="view" aria-labelledby="tab-outputs" hidden>
+          <div style="padding: 40px; display: flex; align-items: center; justify-content: center; height: 100%;">
+            <div class="card" style="max-width: 500px; padding: 30px; text-align: center;">
+              <h2 class="card-title" style="font-size: 20px; color: var(--vs-primary); margin-bottom: 12px;" data-i18n="module_buffer_title">Buffer</h2>
+              <p style="color: #667085; font-size: 14px;" data-i18n="module_buffer_desc">Em breve: Módulo de análise de buffer.</p>
+            </div>
+          </div>
+        </section>
+      </div> <!-- End module-buffer -->
+
+      <div id="module-compact" class="app-module" hidden>
+        <section id="compact-inputs-view" class="view view--active" aria-labelledby="tab-inputs">
+          <div class="io-layout">
+            <!-- LEFT: inputs -->
+            <aside class="io-left sidebar">
+              <div class="io-kicker io-left-kicker">
+                <span data-i18n="badge_input">ENTRADA</span>
+              </div>
+              <!-- GLOBAL CONFIG -->
+              <section class="panel sidebar-section">
+                <header class="panel-header panel-header--row">
+                  <h3 class="panel-title" data-i18n="compact_global_config">Configurações Globais</h3>
+                </header>
+                <div class="panel-body">
+                  <div class="grid-1 robot-config-row" style="margin-bottom: 12px;">
+                    <div class="field">
+                      <label for="compact-project-name" class="field-label">
+                        <span data-i18n="in_project_name">Nome do Projeto</span>
+                      </label>
+                      <input id="compact-project-name" class="field-input" type="text" placeholder="Ex.: Projeto TRF Compact">
+                    </div>
+                  </div>
+                  <div class="grid-1 robot-config-row" style="margin-bottom: 12px;">
+                    <div class="field">
+                      <label for="compact-gripper-type" class="field-label">
+                        <span data-i18n="compact_gripper_type">Tipo de garra</span>
+                      </label>
+                      <select id="compact-gripper-type" class="field-input">
+                        <option value="vacuum" data-i18n="compact_gripper_vacuum">Vácuo (14 ciclos/min)</option>
+                        <option value="clamp" data-i18n="compact_gripper_clamp">Clamp (12 ciclos/min)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="grid-1 robot-config-row">
+                    <div class="field">
+                      <label for="compact-transition-time" class="field-label">
+                        <span data-i18n="compact_transition_time">Tempo transição pallet (s)</span>
+                      </label>
+                      <input id="compact-transition-time" class="field-input" type="number" inputmode="numeric" value="50">
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- LINE 1 -->
+              <section class="panel sidebar-section">
+                <header class="panel-header panel-header--row">
+                  <h3 class="panel-title" data-i18n="compact_line_1">Linha 1</h3>
+                </header>
+                <div class="panel-body">
+                  <div class="grid-1 robot-config-row" style="margin-bottom: 12px;">
+                    <div class="field">
+                      <label for="compact-sku-name-1" class="field-label">
+                        <span data-i18n="compact_sku_name">Nome do SKU</span>
+                      </label>
+                      <input id="compact-sku-name-1" class="field-input" type="text" placeholder="Ex.: Caixa 500ml">
+                    </div>
+                  </div>
+                  <div class="grid-1 robot-config-row" style="margin-bottom: 12px;">
+                    <div class="field">
+                      <label for="compact-production-rate-1" class="field-label">
+                        <span data-i18n="compact_production_rate">Taxa de produção (cx/min)</span>
+                      </label>
+                      <input id="compact-production-rate-1" class="field-input" type="number" inputmode="decimal" value="20">
+                    </div>
+                  </div>
+                  <div class="grid-2 robot-config-row" style="margin-bottom: 12px;">
+                    <div class="field">
+                      <label for="compact-boxes-per-layer-1" class="field-label">
+                        <span data-i18n="compact_boxes_per_layer">Caixas por camada</span>
+                      </label>
+                      <input id="compact-boxes-per-layer-1" class="field-input" type="number" inputmode="numeric" value="8">
+                    </div>
+                    <div class="field">
+                      <label for="compact-picks-per-layer-1" class="field-label">
+                        <span data-i18n="compact_picks_per_layer">Capturas por camada</span>
+                      </label>
+                      <input id="compact-picks-per-layer-1" class="field-input" type="number" inputmode="numeric" value="4">
+                    </div>
+                  </div>
+                  <div class="grid-1 robot-config-row">
+                    <div class="field">
+                      <label for="compact-layers-per-pallet-1" class="field-label">
+                        <span data-i18n="compact_layers_per_pallet">Camadas por pallet</span>
+                      </label>
+                      <input id="compact-layers-per-pallet-1" class="field-input" type="number" inputmode="numeric" value="5">
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- LINE 2 -->
+              <section class="panel sidebar-section" style="margin-bottom:0;">
+                <header class="panel-header panel-header--row">
+                  <h3 class="panel-title" data-i18n="compact_line_2">Linha 2</h3>
+                </header>
+                <div class="panel-body">
+                  <div class="grid-1 robot-config-row" style="margin-bottom: 12px;">
+                    <div class="field">
+                      <label for="compact-sku-name-2" class="field-label">
+                        <span data-i18n="compact_sku_name">Nome do SKU</span>
+                      </label>
+                      <input id="compact-sku-name-2" class="field-input" type="text" placeholder="Ex.: Caixa 300ml (Opcional)">
+                    </div>
+                  </div>
+                  <div class="grid-1 robot-config-row" style="margin-bottom: 12px;">
+                    <div class="field">
+                      <label for="compact-production-rate-2" class="field-label">
+                        <span data-i18n="compact_production_rate">Taxa de produção (cx/min)</span>
+                      </label>
+                      <input id="compact-production-rate-2" class="field-input" type="number" inputmode="decimal" value="">
+                    </div>
+                  </div>
+                  <div class="grid-2 robot-config-row" style="margin-bottom: 12px;">
+                    <div class="field">
+                      <label for="compact-boxes-per-layer-2" class="field-label">
+                        <span data-i18n="compact_boxes_per_layer">Caixas por camada</span>
+                      </label>
+                      <input id="compact-boxes-per-layer-2" class="field-input" type="number" inputmode="numeric" value="8">
+                    </div>
+                    <div class="field">
+                      <label for="compact-picks-per-layer-2" class="field-label">
+                        <span data-i18n="compact_picks_per_layer">Capturas por camada</span>
+                      </label>
+                      <input id="compact-picks-per-layer-2" class="field-input" type="number" inputmode="numeric" value="4">
+                    </div>
+                  </div>
+                  <div class="grid-1 robot-config-row">
+                    <div class="field">
+                      <label for="compact-layers-per-pallet-2" class="field-label">
+                        <span data-i18n="compact_layers_per_pallet">Camadas por pallet</span>
+                      </label>
+                      <input id="compact-layers-per-pallet-2" class="field-input" type="number" inputmode="numeric" value="5">
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </aside>
+
+            <!-- RIGHT: outputs -->
+            <section class="io-right output-zone">
+              <div class="io-kicker io-kicker--output">
+                <span data-i18n="badge_output">SAÍDA</span>
+              </div>
+              <div class="output-scroll">
+                <div class="output-scroll-inner">
+                  <!-- KPIs -->
+                  <section class="output-general">
+                    <div class="vs-card vs-card--main output-general-card">
+                      <header class="vs-card__header output-general-top">
+                        <div class="output-general-title vs-card__title">
+                          <span data-i18n="module_compact_title">TRF Compact</span>
+                        </div>
+                      </header>
+                      <div class="vs-card__content output-general-body">
+                        <div class="compact-kpi-grid" style="margin-bottom: 16px;">
+                          <!-- Ocupação (span 2) -->
+                          <div class="output-exec-kpi output-exec-kpi--occupancy occ--good" id="compact-kpi-occupancy-card">
+                            <div class="output-exec-kpi-label">
+                              <span data-i18n="compact_kpi_occupancy">Taxa de ocupação</span>
+                            </div>
+                            <div class="output-exec-kpi-value-row">
+                              <div class="output-exec-kpi-value output-exec-occupancy-value" id="compact-kpi-occupancy">—</div>
+                              <span class="output-exec-kpi-indicator" id="compact-kpi-occupancy-indicator" aria-hidden="true"></span>
+                            </div>
+                          </div>
+
+                          <!-- Limpa acúmulo -->
+                          <div class="output-exec-kpi output-exec-kpi--accum">
+                            <div class="output-exec-kpi-label">
+                              <span data-i18n="compact_kpi_accum">Limpa acúmulo?</span>
+                            </div>
+                            <div class="output-exec-kpi-value-row">
+                              <div class="output-exec-kpi-value" id="compact-kpi-accum">—</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- General Bars (Ocupação L1 x L2) -->
+                        <div class="general-bars" id="compact-general-bars" style="display:none; margin-top:0;">
+                          <div class="general-bars-track">
+                            <div class="general-bars-fill general-bars-fill--l1" id="compact-bar-l1" style="width: 0%;">
+                              <span class="general-bars-label" id="compact-label-l1"></span>
+                            </div>
+                            <div class="general-bars-fill general-bars-fill--l2" id="compact-bar-l2" style="width: 0%;">
+                              <span class="general-bars-label" id="compact-label-l2"></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+        <section id="compact-outputs-view" class="view" aria-labelledby="tab-outputs" hidden>
+          <div style="padding: 40px; display: flex; align-items: center; justify-content: center; height: 100%;">
+            <div class="card" style="max-width: 500px; padding: 30px; text-align: center;">
+              <h2 class="card-title" style="font-size: 20px; color: var(--vs-primary); margin-bottom: 12px;" data-i18n="module_compact_title">TRF Compact</h2>
+              <p style="color: #667085; font-size: 14px;" data-i18n="module_compact_desc">Dimensionamento da célula de paletização TRF Compact.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div id="module-field" class="app-module" hidden>
+        <section id="field-inputs-view" class="view view--active" aria-labelledby="tab-inputs">
+          <div style="padding: 40px; display: flex; align-items: center; justify-content: center; height: 100%;">
+            <div class="card" style="max-width: 500px; padding: 30px; text-align: center;">
+              <h2 class="card-title" style="font-size: 20px; color: var(--vs-primary); margin-bottom: 12px;" data-i18n="module_field_title">Campo</h2>
+              <p style="color: #667085; font-size: 14px;" data-i18n="module_field_desc">Em breve: Módulo de análise de campo.</p>
+            </div>
+          </div>
+        </section>
+        <section id="field-outputs-view" class="view" aria-labelledby="tab-outputs" hidden>
+          <div style="padding: 40px; display: flex; align-items: center; justify-content: center; height: 100%;">
+            <div class="card" style="max-width: 500px; padding: 30px; text-align: center;">
+              <h2 class="card-title" style="font-size: 20px; color: var(--vs-primary); margin-bottom: 12px;" data-i18n="module_field_title">Campo</h2>
+              <p style="color: #667085; font-size: 14px;" data-i18n="module_field_desc">Em breve: Módulo de análise de campo.</p>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
   </div>
 
@@ -839,7 +1112,10 @@
   <script src="ui-help-page.js"></script>
   <script src="scenario-pdf.js"></script>
   <script src="scenario-io.js"></script>
+  <script src="ui-compact.js"></script>
   <script src="app.js"></script>
   <script src="ui-header-settings.js"></script>
+  <script src="ui-buffer.js"></script>
+  <div id="heatmap-tooltip" class="heatmap-tooltip" style="display: none; position: absolute; pointer-events: none; z-index: 10000;"></div>
 </body>
 </html>

@@ -465,8 +465,8 @@
         }
       }
 
-      if (typeof initHelpTooltipsForNodes === "function") {
-        initHelpTooltipsForNodes();
+      if (typeof window.initHelpTooltipsForNodes === "function") {
+        window.initHelpTooltipsForNodes();
       }
     }
 
@@ -485,125 +485,135 @@
   }
 
   function renderHelpPage() {
-    var container = document.querySelector(".help-container");
-    if (!container) return;
-    var lang = window.APP_LANG || "pt";
-    if (container.getAttribute(HELP_RENDERED) === "1" && container.getAttribute(HELP_LANG) === lang) {
-      return;
+    try {
+      var container = document.querySelector(".help-container");
+      if (!container) return;
+      var lang = window.APP_LANG || "pt";
+      if (container.getAttribute(HELP_RENDERED) === "1" && container.getAttribute(HELP_LANG) === lang) {
+        return;
+      }
+
+      var t = tFn();
+
+      var keysConfig = [
+        "robotName",
+        "linesCount",
+        "skuName",
+        "productionBpm",
+        "boxesPerLayer",
+        "layersPerPallet",
+        "picksPerLayer",
+        "slipSheetBottom",
+        "slipSheetBetweenLayers",
+        "palletPick"
+      ];
+
+      var keysCycle = ["cycleTimePickS", "cycleTimeSlipSheetS", "cycleTimePalletS"];
+
+      var keysPallet = [
+        "gapBetweenBoxesS",
+        "totalBoxesOnPallet",
+        "picksPerPallet",
+        "boxesPerCycle",
+        "totalCyclesPerPallet",
+        "totalCycleTimePicksS",
+        "totalCycleTimeSlipSheetS",
+        "totalCycleTimePalletsS",
+        "totalCycleTimePerPallet",
+        "totalStackingTimeRobotS"
+      ];
+
+      var keysGeneral = [
+        "generalRobotOccupancyRate",
+        "generalCyclesPerMinute",
+        "generalRequiredCycleS",
+        "generalAvailableCycleS",
+        "generalMarginS",
+        "generalChartComparison",
+        "chartLegendOccupancy",
+        "occupancyVisualStatus"
+      ];
+
+      var keysPerLine = [
+        "robotOccupancyRate",
+        "palletsPerHour",
+        "averageCycleTimeS",
+        "cyclesNumberPerMinute",
+        "totalTimeOfPalletStackingS",
+        "accumulationTimeToPalletExchangeS",
+        "productNumberInSlipAccumulation",
+        "cyclesToEmptySlipAccumulation",
+        "productsNumberInPalletAccumulation",
+        "lineMaxProductsInAccumulation",
+        "cyclesToEmptyPalletAccumulation"
+      ];
+
+      var html = '<div class="help-surface">';
+      html += '<div class="help-page-intro vs-card vs-card--main">';
+      html += '<header class="help-page-head vs-card__header">';
+      html += '<p class="help-page-kicker">' + escapeHtml(t("help_page_kicker")) + "</p>";
+      html += '<h1 class="help-page-title vs-card__title">' + escapeHtml(t("help_page_title")) + "</h1>";
+      html +=
+        '<p class="help-page-lede vs-card__description">' +
+        escapeHtml(t("help_page_intro")) +
+        "</p>";
+      html += "</header>";
+
+      html += '<div class="help-page-intro__search vs-card__content">';
+      html += renderHelpSearchBar(t);
+      html += "</div>";
+      html += "</div>";
+      html += renderHelpToc(t);
+
+      html += '<div class="help-body">';
+      html += renderFlowDiagram(t);
+
+      html += '<div class="help-columns">';
+      html += '<div class="help-column help-column--inputs" id="help-zone-inputs">';
+      html += '<p class="help-column-kicker">' + escapeHtml(t("help_column_inputs_kicker")) + "</p>";
+      html += renderRegion("help-region-config", "help_region_config", "help_region_config_hint", keysConfig, t);
+      html += renderRegion("help-region-cycles", "help_region_cycles", "help_region_cycles_hint", keysCycle, t);
+      html += renderRegion("help-region-pallet", "help_region_pallet", "help_region_pallet_hint", keysPallet, t);
+      html += "</div>";
+
+      html += '<div class="help-column help-column--outputs" id="help-zone-outputs">';
+      html += '<p class="help-column-kicker">' + escapeHtml(t("help_column_outputs_kicker")) + "</p>";
+      html += renderRegion("help-region-general", "help_region_general", "help_region_general_hint", keysGeneral, t);
+      html += renderRegion("help-region-lines", "help_region_lines", "help_region_lines_hint", keysPerLine, t);
+      html += "</div>";
+
+      html += "</div>";
+      html += "</div>";
+
+      html += "</div>";
+
+      container.innerHTML = html;
+      container.setAttribute(HELP_RENDERED, "1");
+      container.setAttribute(HELP_LANG, lang);
+
+      if (typeof window.initHelpTooltipsForNodes === "function") {
+        window.initHelpTooltipsForNodes();
+      }
+
+      initHelpSearch(container);
+    } catch (err) {
+      console.error("[HelpPage] Error during render:", err);
+      alert("[HelpPage] Render failed: " + err.message + "\n" + err.stack);
     }
-
-    var t = tFn();
-
-    var keysConfig = [
-      "robotName",
-      "linesCount",
-      "skuName",
-      "productionBpm",
-      "boxesPerLayer",
-      "layersPerPallet",
-      "picksPerLayer",
-      "slipSheetBottom",
-      "slipSheetBetweenLayers",
-      "palletPick"
-    ];
-
-    var keysCycle = ["cycleTimePickS", "cycleTimeSlipSheetS", "cycleTimePalletS"];
-
-    var keysPallet = [
-      "gapBetweenBoxesS",
-      "totalBoxesOnPallet",
-      "picksPerPallet",
-      "boxesPerCycle",
-      "totalCyclesPerPallet",
-      "totalCycleTimePicksS",
-      "totalCycleTimeSlipSheetS",
-      "totalCycleTimePalletsS",
-      "totalCycleTimePerPallet",
-      "totalStackingTimeRobotS"
-    ];
-
-    var keysGeneral = [
-      "generalRobotOccupancyRate",
-      "generalCyclesPerMinute",
-      "generalRequiredCycleS",
-      "generalAvailableCycleS",
-      "generalMarginS",
-      "generalChartComparison",
-      "chartLegendOccupancy",
-      "occupancyVisualStatus"
-    ];
-
-    var keysPerLine = [
-      "robotOccupancyRate",
-      "palletsPerHour",
-      "averageCycleTimeS",
-      "cyclesNumberPerMinute",
-      "totalTimeOfPalletStackingS",
-      "accumulationTimeToPalletExchangeS",
-      "productNumberInSlipAccumulation",
-      "cyclesToEmptySlipAccumulation",
-      "productsNumberInPalletAccumulation",
-      "lineMaxProductsInAccumulation",
-      "cyclesToEmptyPalletAccumulation"
-    ];
-
-    var html = '<div class="help-surface">';
-    html += '<div class="help-page-intro vs-card vs-card--main">';
-    html += '<header class="help-page-head vs-card__header">';
-    html += '<p class="help-page-kicker">' + escapeHtml(t("help_page_kicker")) + "</p>";
-    html += '<h1 class="help-page-title vs-card__title">' + escapeHtml(t("help_page_title")) + "</h1>";
-    html +=
-      '<p class="help-page-lede vs-card__description">' +
-      escapeHtml(t("help_page_intro")) +
-      "</p>";
-    html += "</header>";
-
-    html += '<div class="help-page-intro__search vs-card__content">';
-    html += renderHelpSearchBar(t);
-    html += "</div>";
-    html += "</div>";
-    html += renderHelpToc(t);
-
-    html += '<div class="help-body">';
-    html += renderFlowDiagram(t);
-
-    html += '<div class="help-columns">';
-    html += '<div class="help-column help-column--inputs" id="help-zone-inputs">';
-    html += '<p class="help-column-kicker">' + escapeHtml(t("help_column_inputs_kicker")) + "</p>";
-    html += renderRegion("help-region-config", "help_region_config", "help_region_config_hint", keysConfig, t);
-    html += renderRegion("help-region-cycles", "help_region_cycles", "help_region_cycles_hint", keysCycle, t);
-    html += renderRegion("help-region-pallet", "help_region_pallet", "help_region_pallet_hint", keysPallet, t);
-    html += "</div>";
-
-    html += '<div class="help-column help-column--outputs" id="help-zone-outputs">';
-    html += '<p class="help-column-kicker">' + escapeHtml(t("help_column_outputs_kicker")) + "</p>";
-    html += renderRegion("help-region-general", "help_region_general", "help_region_general_hint", keysGeneral, t);
-    html += renderRegion("help-region-lines", "help_region_lines", "help_region_lines_hint", keysPerLine, t);
-    html += "</div>";
-
-    html += "</div>";
-    html += "</div>";
-
-    html += "</div>";
-
-    container.innerHTML = html;
-    container.setAttribute(HELP_RENDERED, "1");
-    container.setAttribute(HELP_LANG, lang);
-
-    if (typeof initHelpTooltipsForNodes === "function") {
-      initHelpTooltipsForNodes();
-    }
-
-    initHelpSearch(container);
   }
 
   window.renderHelpPage = function (force) {
-    if (force) {
-      var c = document.querySelector(".help-container");
-      if (c) {
-        c.removeAttribute(HELP_RENDERED);
+    try {
+      if (force) {
+        var c = document.querySelector(".help-container");
+        if (c) {
+          c.removeAttribute(HELP_RENDERED);
+        }
       }
+      renderHelpPage();
+    } catch (err) {
+      console.error("[HelpPage] Error in window.renderHelpPage:", err);
+      alert("[HelpPage] window.renderHelpPage failed: " + err.message + "\n" + err.stack);
     }
-    renderHelpPage();
   };
 })();

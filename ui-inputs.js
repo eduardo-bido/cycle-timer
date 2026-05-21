@@ -364,6 +364,9 @@ function initInputsUI(api) {
       }
       row.remove();
       syncRecipeDependentFields();
+      if (typeof recipePatchFromSync === "function") {
+        recipePatchFromSync({}); // Dispara recomputação global para os outputs
+      }
     });
   }
 

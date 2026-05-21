@@ -33,12 +33,63 @@
     };
   }
 
-  // ---- Navegação entre abas ----
+  // ---- Navegação entre abas e módulos ----
+  var activeModule = "palletizing";
+  var moduleBtns = document.querySelectorAll(".module-btn");
+  var modPalletizing = document.getElementById("module-palletizing");
+  var modBuffer = document.getElementById("module-buffer");
+  var modCompact = document.getElementById("module-compact");
+  var modField = document.getElementById("module-field");
+
   var tabs = document.querySelectorAll(".app-tab");
   var inputsView = document.getElementById("inputs-view");
   var outputsView = document.getElementById("outputs-view");
+  var bufferInputsView = document.getElementById("buffer-inputs-view");
+  var bufferOutputsView = document.getElementById("buffer-outputs-view");
+  var compactInputsView = document.getElementById("compact-inputs-view");
+  var compactOutputsView = document.getElementById("compact-outputs-view");
+  var fieldInputsView = document.getElementById("field-inputs-view");
+  var fieldOutputsView = document.getElementById("field-outputs-view");
   var helpView = document.getElementById("help-view");
   var lastMainTab = "inputs";
+
+  function setActiveModule(moduleName) {
+    activeModule = moduleName;
+    moduleBtns.forEach(function (btn) {
+      btn.classList.toggle("active", btn.getAttribute("data-module") === moduleName);
+    });
+
+    if (modPalletizing) {
+      modPalletizing.classList.toggle("is-active", moduleName === "palletizing");
+      if (moduleName === "palletizing") modPalletizing.removeAttribute("hidden");
+      else modPalletizing.setAttribute("hidden", "hidden");
+    }
+
+    if (modBuffer) {
+      modBuffer.classList.toggle("is-active", moduleName === "buffer");
+      if (moduleName === "buffer") modBuffer.removeAttribute("hidden");
+      else modBuffer.setAttribute("hidden", "hidden");
+    }
+
+    if (modCompact) {
+      modCompact.classList.toggle("is-active", moduleName === "compact");
+      if (moduleName === "compact") modCompact.removeAttribute("hidden");
+      else modCompact.setAttribute("hidden", "hidden");
+    }
+
+    if (modField) {
+      modField.classList.toggle("is-active", moduleName === "field");
+      if (moduleName === "field") modField.removeAttribute("hidden");
+      else modField.setAttribute("hidden", "hidden");
+    }
+  }
+
+  moduleBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var modName = btn.getAttribute("data-module");
+      if (modName) setActiveModule(modName);
+    });
+  });
 
   function setActiveTab(tabName) {
     if (tabName === "inputs" || tabName === "outputs") {
@@ -49,26 +100,89 @@
       tab.classList.toggle("app-tab--active", isActive);
     });
 
-    inputsView.classList.remove("view--active");
-    inputsView.setAttribute("hidden", "hidden");
-    outputsView.classList.remove("view--active");
-    outputsView.setAttribute("hidden", "hidden");
+    if (inputsView) {
+      inputsView.classList.remove("view--active");
+      inputsView.setAttribute("hidden", "hidden");
+    }
+    if (outputsView) {
+      outputsView.classList.remove("view--active");
+      outputsView.setAttribute("hidden", "hidden");
+    }
+    if (bufferInputsView) {
+      bufferInputsView.classList.remove("view--active");
+      bufferInputsView.setAttribute("hidden", "hidden");
+    }
+    if (bufferOutputsView) {
+      bufferOutputsView.classList.remove("view--active");
+      bufferOutputsView.setAttribute("hidden", "hidden");
+    }
+    if (compactInputsView) {
+      compactInputsView.classList.remove("view--active");
+      compactInputsView.setAttribute("hidden", "hidden");
+    }
+    if (compactOutputsView) {
+      compactOutputsView.classList.remove("view--active");
+      compactOutputsView.setAttribute("hidden", "hidden");
+    }
+    if (fieldInputsView) {
+      fieldInputsView.classList.remove("view--active");
+      fieldInputsView.setAttribute("hidden", "hidden");
+    }
+    if (fieldOutputsView) {
+      fieldOutputsView.classList.remove("view--active");
+      fieldOutputsView.setAttribute("hidden", "hidden");
+    }
     if (helpView) {
       helpView.classList.remove("view--active");
       helpView.setAttribute("hidden", "hidden");
     }
 
     if (tabName === "inputs") {
-      inputsView.classList.add("view--active");
-      inputsView.removeAttribute("hidden");
+      setActiveModule(activeModule);
+      if (inputsView) {
+        inputsView.classList.add("view--active");
+        inputsView.removeAttribute("hidden");
+      }
+      if (bufferInputsView) {
+        bufferInputsView.classList.add("view--active");
+        bufferInputsView.removeAttribute("hidden");
+      }
+      if (compactInputsView) {
+        compactInputsView.classList.add("view--active");
+        compactInputsView.removeAttribute("hidden");
+      }
+      if (fieldInputsView) {
+        fieldInputsView.classList.add("view--active");
+        fieldInputsView.removeAttribute("hidden");
+      }
     } else if (tabName === "outputs") {
-      outputsView.classList.add("view--active");
-      outputsView.removeAttribute("hidden");
+      setActiveModule(activeModule);
+      if (outputsView) {
+        outputsView.classList.add("view--active");
+        outputsView.removeAttribute("hidden");
+      }
+      if (bufferOutputsView) {
+        bufferOutputsView.classList.add("view--active");
+        bufferOutputsView.removeAttribute("hidden");
+      }
+      if (compactOutputsView) {
+        compactOutputsView.classList.add("view--active");
+        compactOutputsView.removeAttribute("hidden");
+      }
+      if (fieldOutputsView) {
+        fieldOutputsView.classList.add("view--active");
+        fieldOutputsView.removeAttribute("hidden");
+      }
     } else if (tabName === "help" && helpView) {
+      if (modPalletizing) modPalletizing.setAttribute("hidden", "hidden");
+      if (modBuffer) modBuffer.setAttribute("hidden", "hidden");
+      if (modCompact) modCompact.setAttribute("hidden", "hidden");
+      if (modField) modField.setAttribute("hidden", "hidden");
+
       helpView.classList.add("view--active");
       helpView.removeAttribute("hidden");
-      if (typeof renderHelpPage === "function") {
-        renderHelpPage();
+      if (typeof window.renderHelpPage === "function") {
+        window.renderHelpPage();
       }
     }
   }

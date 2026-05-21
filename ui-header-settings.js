@@ -84,10 +84,10 @@
     });
   }
 
-  function initSidebarCollapse() {
-    var minimizeBtn = document.getElementById("minimize-inputs-btn");
-    var restoreBtn = document.getElementById("restore-inputs-btn");
-    var ioLayout = document.querySelector("#inputs-view .io-layout");
+  function setupCollapse(layoutSelector, minimizeId, restoreId) {
+    var ioLayout = document.querySelector(layoutSelector);
+    var minimizeBtn = document.getElementById(minimizeId);
+    var restoreBtn = document.getElementById(restoreId);
     
     if (!minimizeBtn || !restoreBtn || !ioLayout) return;
 
@@ -100,6 +100,11 @@
       ioLayout.classList.remove("is-collapsed");
       restoreBtn.hidden = true;
     });
+  }
+
+  function initSidebarCollapse() {
+    setupCollapse("#inputs-view .io-layout", "minimize-inputs-btn", "restore-inputs-btn");
+    setupCollapse("#buffer-inputs-view .io-layout", "buffer-minimize-inputs-btn", "buffer-restore-inputs-btn");
   }
 
   if (document.readyState === "loading") {
