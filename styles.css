@@ -4199,48 +4199,57 @@ html[data-theme="dark"] .results-card .results-row--emphasis td {
 
 html[data-theme="dark"] .status-badge.occ--good,
 html[data-theme="dark"] #inputs-view .output-exec-kpi-indicator.occ--good,
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi-indicator.occ--good,
 html[data-theme="dark"] #inputs-view .output-line-topband-item.occ-signal.occ--good::before {
   background: color-mix(in srgb, var(--vs-good) 88%, var(--vs-bg) 12%);
 }
 
 html[data-theme="dark"] .status-badge.occ--warn,
 html[data-theme="dark"] #inputs-view .output-exec-kpi-indicator.occ--warn,
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi-indicator.occ--warn,
 html[data-theme="dark"] #inputs-view .output-line-topband-item.occ-signal.occ--warn::before {
   background: color-mix(in srgb, var(--vs-warn) 86%, var(--vs-bg) 14%);
 }
 
 html[data-theme="dark"] .status-badge.occ--bad,
 html[data-theme="dark"] #inputs-view .output-exec-kpi-indicator.occ--bad,
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi-indicator.occ--bad,
 html[data-theme="dark"] #inputs-view .output-line-topband-item.occ-signal.occ--bad::before {
   background: color-mix(in srgb, var(--vs-bad) 86%, var(--vs-bg) 14%);
 }
 
 html[data-theme="dark"] #inputs-view .output-exec-occupancy-value.occ--good,
+html[data-theme="dark"] #compact-inputs-view .output-exec-occupancy-value.occ--good,
 html[data-theme="dark"] #inputs-view .output-line-topband-value.occ--good {
   color: color-mix(in srgb, var(--vs-good) 78%, var(--vs-text) 22%);
 }
 
 html[data-theme="dark"] #inputs-view .output-exec-occupancy-value.occ--warn,
+html[data-theme="dark"] #compact-inputs-view .output-exec-occupancy-value.occ--warn,
 html[data-theme="dark"] #inputs-view .output-line-topband-value.occ--warn {
   color: color-mix(in srgb, var(--vs-warn) 72%, var(--vs-text) 28%);
 }
 
 html[data-theme="dark"] #inputs-view .output-exec-occupancy-value.occ--bad,
+html[data-theme="dark"] #compact-inputs-view .output-exec-occupancy-value.occ--bad,
 html[data-theme="dark"] #inputs-view .output-line-topband-value.occ--bad {
   color: color-mix(in srgb, var(--vs-bad) 72%, var(--vs-text) 28%);
 }
 
-html[data-theme="dark"] #inputs-view .output-exec-kpi--occupancy.occ--good {
+html[data-theme="dark"] #inputs-view .output-exec-kpi--occupancy.occ--good,
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi--occupancy.occ--good {
   background: color-mix(in srgb, var(--vs-good) 12%, var(--vs-surface-muted) 88%);
   border-color: color-mix(in srgb, var(--vs-good) 32%, var(--vs-border) 68%);
 }
 
-html[data-theme="dark"] #inputs-view .output-exec-kpi--occupancy.occ--warn {
+html[data-theme="dark"] #inputs-view .output-exec-kpi--occupancy.occ--warn,
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi--occupancy.occ--warn {
   background: color-mix(in srgb, var(--vs-warn) 12%, var(--vs-surface-muted) 88%);
   border-color: color-mix(in srgb, var(--vs-warn) 30%, var(--vs-border) 70%);
 }
 
-html[data-theme="dark"] #inputs-view .output-exec-kpi--occupancy.occ--bad {
+html[data-theme="dark"] #inputs-view .output-exec-kpi--occupancy.occ--bad,
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi--occupancy.occ--bad {
   background: color-mix(in srgb, var(--vs-bad) 12%, var(--vs-surface-muted) 88%);
   border-color: color-mix(in srgb, var(--vs-bad) 30%, var(--vs-border) 70%);
 }
@@ -4942,19 +4951,24 @@ html[data-theme="dark"] #inputs-view .output-general-card {
   box-shadow: var(--vs-shadow-1), inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
-html[data-theme="dark"] #inputs-view .output-exec-kpi {
+html[data-theme="dark"] #inputs-view .output-exec-kpi,
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi {
   background: color-mix(in srgb, var(--vs-surface-muted) 66%, var(--vs-surface-elevated) 34%);
   border-color: color-mix(in srgb, var(--vs-border) 82%, var(--vs-text-soft) 18%);
 }
 
-html[data-theme="dark"] #inputs-view .output-exec-kpi:hover {
+html[data-theme="dark"] #inputs-view .output-exec-kpi:hover,
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi:hover {
   background: color-mix(in srgb, var(--vs-surface-hover) 82%, var(--vs-surface-elevated) 18%);
   border-color: color-mix(in srgb, var(--vs-border) 60%, var(--vs-text-muted) 40%);
 }
 
 html[data-theme="dark"] #inputs-view .output-exec-kpi-label,
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi-label,
 html[data-theme="dark"] #inputs-view .output-exec-kpi-unit,
-html[data-theme="dark"] #inputs-view .output-exec-kpi-subtext {
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi-unit,
+html[data-theme="dark"] #inputs-view .output-exec-kpi-subtext,
+html[data-theme="dark"] #compact-inputs-view .output-exec-kpi-subtext {
   color: var(--vs-text-soft);
 }
 
