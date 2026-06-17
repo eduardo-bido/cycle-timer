@@ -1694,6 +1694,9 @@
     if (typeof window.runFeasibilityMatrix === "function") {
       window.runFeasibilityMatrix();
     }
+    if (typeof window.runComboHeatmap === "function") {
+      window.runComboHeatmap();
+    }
   }
 
   // expõe função global usada por app.js
@@ -1784,6 +1787,9 @@
     }
     if (typeof window.runAccumHeatmap === "function") {
       window.runAccumHeatmap();
+    }
+    if (typeof window.runComboHeatmap === "function") {
+      window.runComboHeatmap();
     }
     if (typeof window.syncRecipeDependentFields === "function") {
       window.syncRecipeDependentFields();

@@ -7329,3 +7329,361 @@ html[data-theme="dark"] .ah-thermo-bar-wrapper {
       color: #ffffff;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
+
+/* =========================================
+   COMBO HEATMAP — Campo Minado (Mapa de Combinações)
+   ========================================= */
+
+.combo-heatmap-section {
+  margin-top: 20px;
+}
+
+/* ── Summary Card ── */
+.combo-heatmap-summary {
+  margin-bottom: 20px;
+}
+
+.combo-heatmap-summary-inner {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+html[data-theme="dark"] .combo-heatmap-summary-inner {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-color: #334155;
+}
+
+.combo-heatmap-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.combo-heatmap-stats-pct {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--vs-primary, #059669);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.combo-heatmap-stats-desc {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+html[data-theme="dark"] .combo-heatmap-stats-desc {
+  color: #94a3b8;
+}
+
+/* Progress bar */
+.combo-heatmap-bar-wrap {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+html[data-theme="dark"] .combo-heatmap-bar-wrap {
+  background: #334155;
+}
+
+.combo-heatmap-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.combo-heatmap-bar-fill--success {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.combo-heatmap-bar-fill--warning {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.combo-heatmap-bar-fill--danger {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* Legend */
+.combo-heatmap-legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.combo-heatmap-legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+html[data-theme="dark"] .combo-heatmap-legend-chip {
+  color: #94a3b8;
+}
+
+.combo-heatmap-legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.combo-heatmap-legend-dot--ok {
+  background: #10b981;
+}
+
+.combo-heatmap-legend-dot--fail {
+  background: #ef4444;
+}
+
+html[data-theme="dark"] .combo-heatmap-legend-dot--ok {
+  background: #34d399;
+}
+
+html[data-theme="dark"] .combo-heatmap-legend-dot--fail {
+  background: #f87171;
+}
+
+/* ── Grid Table ── */
+.combo-heatmap-table-wrap {
+  overflow-x: auto;
+  /* Removido overflow-y e max-height para usar o scroll principal da página */
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+html[data-theme="dark"] .combo-heatmap-table-wrap {
+  border-color: #334155;
+  background: #0f172a;
+}
+
+.combo-heatmap-table {
+  border-collapse: separate;
+  border-spacing: 2px;
+  width: auto;
+  min-width: 100%;
+}
+
+/* Corner cell (axis labels) */
+.combo-heatmap-corner {
+  position: sticky;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  background: #f8fafc;
+  min-width: 100px;
+  width: 100px;
+  height: 60px;
+  border: none;
+  padding: 0;
+}
+
+html[data-theme="dark"] .combo-heatmap-corner {
+  background: #1e293b;
+}
+
+.combo-heatmap-corner-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+
+.combo-heatmap-corner-x,
+.combo-heatmap-corner-y {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.combo-heatmap-corner-x {
+  color: #3b82f6;
+}
+
+.combo-heatmap-corner-y {
+  color: #8b5cf6;
+}
+
+html[data-theme="dark"] .combo-heatmap-corner-x {
+  color: #60a5fa;
+}
+
+html[data-theme="dark"] .combo-heatmap-corner-y {
+  color: #a78bfa;
+}
+
+/* Column headers (Line 1 / X-axis) */
+.combo-heatmap-col-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f8fafc;
+  padding: 4px 2px;
+  text-align: center;
+  vertical-align: bottom;
+  height: 60px;
+  min-width: 24px;
+  border: none;
+}
+
+html[data-theme="dark"] .combo-heatmap-col-header {
+  background: #1e293b;
+}
+
+.combo-heatmap-col-header-text {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  max-height: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html[data-theme="dark"] .combo-heatmap-col-header-text {
+  color: #94a3b8;
+}
+
+/* Row headers (Line 2 / Y-axis) */
+.combo-heatmap-row-header {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #f8fafc;
+  padding: 4px 8px;
+  text-align: right;
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  white-space: nowrap;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: none;
+}
+
+html[data-theme="dark"] .combo-heatmap-row-header {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+/* ── Cells ── */
+.combo-heatmap-cell {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+}
+
+/* OK cells (green) */
+.combo-heatmap-cell--ok {
+  background: #10b981;
+}
+
+.combo-heatmap-cell--ok:hover {
+  background: #34d399;
+  transform: scale(1.25);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+  z-index: 5;
+  position: relative;
+}
+
+/* FAIL cells (red) */
+.combo-heatmap-cell--fail {
+  background: #ef4444;
+}
+
+.combo-heatmap-cell--fail:hover {
+  background: #f87171;
+  transform: scale(1.25);
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.4);
+  z-index: 5;
+  position: relative;
+}
+
+/* Active cell (current combination) */
+.combo-heatmap-cell--active {
+  outline: 2.5px solid #111827;
+  outline-offset: -1px;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8);
+  z-index: 4;
+  position: relative;
+}
+
+/* ── Dark Mode Cells ── */
+html[data-theme="dark"] .combo-heatmap-cell--ok {
+  background: #059669;
+}
+
+html[data-theme="dark"] .combo-heatmap-cell--ok:hover {
+  background: #10b981;
+  box-shadow: 0 2px 12px rgba(16, 185, 129, 0.5);
+}
+
+html[data-theme="dark"] .combo-heatmap-cell--fail {
+  background: #dc2626;
+}
+
+html[data-theme="dark"] .combo-heatmap-cell--fail:hover {
+  background: #ef4444;
+  box-shadow: 0 2px 12px rgba(239, 68, 68, 0.5);
+}
+
+html[data-theme="dark"] .combo-heatmap-cell--active {
+  outline: 2.5px solid #ffffff;
+  box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.8);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .combo-heatmap-cell {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+  }
+
+  .combo-heatmap-col-header {
+    min-width: 20px;
+  }
+
+  .combo-heatmap-corner {
+    min-width: 80px;
+    width: 80px;
+  }
+
+  .combo-heatmap-row-header {
+    max-width: 80px;
+    font-size: 10px;
+  }
+
+  .combo-heatmap-stats-pct {
+    font-size: 22px;
+  }
+}

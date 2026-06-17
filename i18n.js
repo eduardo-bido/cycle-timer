@@ -311,6 +311,7 @@
 
       accum_heatmap_title: "Análise de Limpeza de Acúmulo",
       accum_heatmap_desc: "Simulação avalia a capacidade do robô de limpar o acúmulo gerado pelo pior caso simultâneo em ambas as linhas.",
+      combo_heatmap_title: "Mapa de Combinações",
 
 
       header_tabs_aria: "Navegação principal",
@@ -696,6 +697,7 @@
 
       accum_heatmap_title: "Accumulation Clearing Analysis",
       accum_heatmap_desc: "SKU × SKU combinations for 2 lines under the absolute worst case (Mode A). Green = both lines clear accumulation. Red = at least one fails. Click to apply the combination.",
+      combo_heatmap_title: "Combination Map",
 
 
       header_tabs_aria: "Main navigation",
