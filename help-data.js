@@ -494,6 +494,113 @@
         unit: "",
         interpretation:
           "Até 100% o comprimento do preenchimento é proporcional à ocupação. Acima de 100% a barra preenche todo o trilho em vermelho (sobrecarga)."
+      },
+
+      // ==========================================
+      // NOVAS VARIÁVEIS: BUFFER ANALYZER
+      // ==========================================
+      beltSpeedMMin: {
+        label: "Velocidade da Esteira",
+        description: "Velocidade nominal da esteira transportadora do buffer de acúmulo.",
+        formula: "",
+        unit: "m/min",
+        interpretation: "Junto com a taxa de entrada, define o ritmo de acúmulo de produtos na linha."
+      },
+      boxLengthMm: {
+        label: "Comprimento da Caixa",
+        description: "Maior dimensão da caixa no sentido do fluxo da esteira.",
+        formula: "",
+        unit: "mm",
+        interpretation: "Usado para calcular a capacidade física máxima do buffer (quantas caixas cabem enfileiradas)."
+      },
+      upstreamProductionBpm: {
+        label: "Produção Upstream (Infeed)",
+        description: "Taxa com que as caixas chegam na entrada do buffer da linha.",
+        formula: "",
+        unit: "cx/min",
+        interpretation: "Define a velocidade de acúmulo das caixas durante os momentos em que o robô estiver parado."
+      },
+      dynamicAccumulation: {
+        label: "Acúmulo Dinâmico",
+        description: "Volume total de caixas que irão se acumular na esteira durante a parada planejada do robô (ex: troca de pallet).",
+        formula: "Ad = (Infeed / 60) × Tempo Parada",
+        unit: "caixas",
+        interpretation: "Se o acúmulo calculado for maior que a Capacidade Física da esteira, ocorrerá transbordo visualizado em vermelho."
+      },
+      recoveryTime: {
+        label: "Tempo de Recuperação",
+        description: "Tempo necessário para o robô esvaziar completamente o acúmulo gerado na parada.",
+        formula: "Trec = (Ad / (Outfeed - Infeed)) × 60",
+        unit: "segundos",
+        interpretation: "A linha deve operar em fluxo contínuo por pelo menos este tempo para o buffer 'zerar'. Se houver uma nova parada antes, a linha transborda."
+      },
+      safetyMargin: {
+        label: "Margem de Segurança",
+        description: "Tempo extra (não planejado) que o robô pode ficar parado antes que o buffer transborde fisicamente.",
+        formula: "Ms = (Capacidade - Ad) / (Infeed / 60)",
+        unit: "segundos",
+        interpretation: "Quanto maior, mais resiliente é o layout mecânico contra pequenas falhas (micro-paradas)."
+      },
+      saturation: {
+        label: "Saturação de Linha",
+        description: "Condição crítica de falha sistêmica onde a linha alimenta produtos mais rápido do que o robô consegue retirar.",
+        formula: "Rt = Outfeed - Infeed ≤ 0",
+        unit: "",
+        interpretation: "Se saturado, o buffer crescerá infinitamente. A linha fatalmente irá parar (Backlog infinito), independentemente do tamanho da esteira."
+      },
+
+      // ==========================================
+      // NOVAS VARIÁVEIS: ENGINE & VIABILIDADE
+      // ==========================================
+      cycleTimeTotal: {
+        label: "Tempo Total de Ciclo",
+        description: "Soma de todos os tempos do robô para completar a paletização de 1 pallet inteiro.",
+        formula: "Tc = Total Picks + Total Slips + Troca Pallet",
+        unit: "segundos",
+        interpretation: "Mostra quanto tempo o robô fica 'preso' executando as tarefas exclusivas desta receita."
+      },
+      efficiency: {
+        label: "Eficiência (OEE do Robô)",
+        description: "Proporção do tempo que o robô gasta movendo produto (pick) versus o tempo gasto em setups (slip sheet, pallet).",
+        formula: "Eficiência = T_Picks / Tc",
+        unit: "%",
+        interpretation: "Valores baixos (<70%) indicam que o robô gasta energia excessiva com operações de apoio. Recomenda-se dispensadores automáticos."
+      },
+      realCadence: {
+        label: "Cadência Efetiva (Outfeed)",
+        description: "Taxa máxima real de caixas por minuto que o robô consegue escoar nesta linha, já descontando as paradas.",
+        formula: "Cadência = (Caixas por Pallet) / (Tc / 60)",
+        unit: "cx/min",
+        interpretation: "Este valor deve ser estritamente MAIOR que a Produção (Infeed) exigida pela linha, caso contrário causará Saturação."
+      },
+
+      // ==========================================
+      // NOVAS VARIÁVEIS: HEATMAP (CAMPO MINADO)
+      // ==========================================
+      burdenOccupancy: {
+        label: "Ocupação Cruzada (Burden)",
+        description: "O impacto fantasma que as paradas de uma linha geram no ciclo das demais linhas do sistema.",
+        formula: "Burden = Soma de (Tempo Pallet + Tempo Slip) de outras linhas",
+        unit: "%",
+        interpretation: "No Campo Minado, o sistema soma o tempo em que o robô fica 'sequestrado' trocando pallet numa linha e subtrai da janela de tempo das outras, revelando gargalos ocultos multi-linhas."
+      },
+
+      // ==========================================
+      // NOVAS VARIÁVEIS: INSIGHTS & AVISOS
+      // ==========================================
+      insightSinglePick: {
+        label: "Paletização Ineficiente (Single Pick)",
+        description: "Alerta crítico disparado pelo avaliador inteligente quando o robô captura apenas 1 caixa por ciclo.",
+        formula: "",
+        unit: "",
+        interpretation: "Operações single pick desperdiçam a capacidade de payload da máquina. Sugere o desenho de uma garra múltipla."
+      },
+      insightTransitionObfuscation: {
+        label: "Transição Ofuscada",
+        description: "Alerta disparado quando as tarefas mecânicas de apoio (pallet/slip) tomam uma fração majoritária do tempo total.",
+        formula: "",
+        unit: "",
+        interpretation: "Indica que o gargalo do projeto não é a velocidade do robô, mas o tempo gasto manuseando a madeira e papelão."
       }
     },
 
@@ -988,6 +1095,113 @@
         unit: "",
         interpretation:
           "Up to 100%, fill length matches occupancy. Above 100%, the bar fills the track in red (overload)."
+      },
+
+      // ==========================================
+      // NEW VARIABLES: BUFFER ANALYZER
+      // ==========================================
+      beltSpeedMMin: {
+        label: "Belt Speed",
+        description: "Nominal speed of the accumulation buffer conveyor.",
+        formula: "",
+        unit: "m/min",
+        interpretation: "Along with the infeed rate, it defines the physical filling pace of the line."
+      },
+      boxLengthMm: {
+        label: "Box Length",
+        description: "Longest dimension of the box in the flow direction.",
+        formula: "",
+        unit: "mm",
+        interpretation: "Used to calculate the maximum physical capacity of the buffer (how many boxes fit in a line)."
+      },
+      upstreamProductionBpm: {
+        label: "Upstream Production (Infeed)",
+        description: "Rate at which boxes arrive at the line's buffer entrance.",
+        formula: "",
+        unit: "bpm",
+        interpretation: "Defines the box accumulation speed during times when the robot is stopped."
+      },
+      dynamicAccumulation: {
+        label: "Dynamic Accumulation",
+        description: "Total volume of boxes that will accumulate on the conveyor during a planned robot stop.",
+        formula: "Ad = (Infeed / 60) × Stop Time",
+        unit: "boxes",
+        interpretation: "If the calculated accumulation is greater than the physical capacity, an overflow will occur."
+      },
+      recoveryTime: {
+        label: "Recovery Time",
+        description: "Time needed for the robot to completely empty the accumulation generated during the stop.",
+        formula: "Trec = (Ad / (Outfeed - Infeed)) × 60",
+        unit: "seconds",
+        interpretation: "The line must operate continuously for at least this long for the buffer to 'reset'. A new stop before this will cause overflow."
+      },
+      safetyMargin: {
+        label: "Safety Margin",
+        description: "Extra (unplanned) time the robot can stay stopped before the buffer physically overflows.",
+        formula: "Ms = (Capacity - Ad) / (Infeed / 60)",
+        unit: "seconds",
+        interpretation: "The higher this value, the more resilient the mechanical layout is against micro-stops."
+      },
+      saturation: {
+        label: "Line Saturation",
+        description: "Critical failure condition where the line feeds products faster than the robot can remove them.",
+        formula: "Rt = Outfeed - Infeed ≤ 0",
+        unit: "",
+        interpretation: "If saturated, the buffer will grow infinitely. The line will inevitably stop, regardless of conveyor size."
+      },
+
+      // ==========================================
+      // NEW VARIABLES: ENGINE & FEASIBILITY
+      // ==========================================
+      cycleTimeTotal: {
+        label: "Total Cycle Time",
+        description: "Sum of all robot times to complete the palletizing of 1 full pallet.",
+        formula: "Tc = Total Picks + Total Slips + Pallet Exchange",
+        unit: "seconds",
+        interpretation: "Shows how long the robot is 'locked' executing the exclusive tasks of this recipe."
+      },
+      efficiency: {
+        label: "Efficiency (Robot OEE)",
+        description: "Proportion of time the robot spends moving product (pick) versus support setups (slip sheet, pallet).",
+        formula: "Efficiency = T_Picks / Tc",
+        unit: "%",
+        interpretation: "Low values (<70%) indicate the robot spends excessive energy on support ops. Automatic dispensers are recommended."
+      },
+      realCadence: {
+        label: "Effective Cadence (Outfeed)",
+        description: "Maximum real rate of boxes per minute the robot can clear from this line, already discounting stops.",
+        formula: "Cadence = (Boxes per Pallet) / (Tc / 60)",
+        unit: "bpm",
+        interpretation: "This value must be strictly GREATER than the Production (Infeed) required, otherwise it causes Saturation."
+      },
+
+      // ==========================================
+      // NEW VARIABLES: HEATMAP (COMBO)
+      // ==========================================
+      burdenOccupancy: {
+        label: "Cross Occupancy (Burden)",
+        description: "The ghost impact that stops on one line generate on the cycle of other lines.",
+        formula: "Burden = Sum of (Pallet Time + Slip Time) of other lines",
+        unit: "%",
+        interpretation: "In the Combo Heatmap, the system adds the time the robot is 'hijacked' exchanging pallets on one line and subtracts it from the others, revealing hidden multi-line bottlenecks."
+      },
+
+      // ==========================================
+      // NEW VARIABLES: INSIGHTS & WARNINGS
+      // ==========================================
+      insightSinglePick: {
+        label: "Inefficient Palletizing (Single Pick)",
+        description: "Critical alert triggered by the smart evaluator when the robot captures only 1 box per cycle.",
+        formula: "",
+        unit: "",
+        interpretation: "Single pick ops waste the machine's payload capacity. Suggests designing a multiple-box gripper."
+      },
+      insightTransitionObfuscation: {
+        label: "Obfuscated Transition",
+        description: "Alert triggered when mechanical support tasks (pallet/slip) take a majority fraction of the total time.",
+        formula: "",
+        unit: "",
+        interpretation: "Indicates the project bottleneck isn't the robot's speed, but the time spent handling wood and cardboard."
       }
     }
   };

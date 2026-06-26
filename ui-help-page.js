@@ -88,24 +88,25 @@
 
   function renderHelpToc(t) {
     var items = [
-      { href: "#help-region-flow", key: "help_toc_item_flow" },
-      { href: "#help-region-config", key: "help_toc_item_config" },
-      { href: "#help-region-cycles", key: "help_toc_item_cycles" },
-      { href: "#help-region-pallet", key: "help_toc_item_pallet" },
-      { href: "#help-region-general", key: "help_toc_item_general" },
-      { href: "#help-region-lines", key: "help_toc_item_lines" }
+      { href: "#help-region-flow", key: "help_toc_item_flow", label: "00. Diagrama de Fluxo" },
+      { href: "#help-region-config", key: "help_toc_item_config", label: "01. Parâmetros e Entradas (Inputs)" },
+      { href: "#help-region-engine", label: "02. Motor de Produtividade (Engine)" },
+      { href: "#help-region-buffer", label: "03. Dimensionamento de Buffers" },
+      { href: "#help-region-heatmap", label: "04. Matriz de Colisões (Heatmap)" },
+      { href: "#help-region-insights", label: "05. Avaliador Inteligente (Insights)" }
     ];
     var html = '<nav class="help-toc" aria-label="' + escapeHtml(t("help_toc_aria")) + '">';
     html += '<span class="help-toc-label">' + escapeHtml(t("help_toc_label")) + "</span>";
     html += '<ul class="help-toc-list">';
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
+      var text = it.label || t(it.key);
       html += '<li class="help-toc-item">';
       html +=
         '<a class="help-toc-link" href="' +
         escapeHtml(it.href) +
         '">' +
-        escapeHtml(t(it.key)) +
+        escapeHtml(text) +
         "</a>";
       html += "</li>";
     }
@@ -495,68 +496,37 @@
 
       var t = tFn();
 
+
+      var tLocal = function(k, defaultText) {
+        return (window.I18N && window.I18N.t && window.I18N.t(k) !== k) ? window.I18N.t(k) : defaultText;
+      };
+
       var keysConfig = [
-        "robotName",
-        "linesCount",
-        "skuName",
-        "productionBpm",
-        "boxesPerLayer",
-        "layersPerPallet",
-        "picksPerLayer",
-        "slipSheetBottom",
-        "slipSheetBetweenLayers",
-        "palletPick"
+        "robotName", "linesCount", "skuName", "productionBpm", 
+        "boxesPerLayer", "layersPerPallet", "picksPerLayer", 
+        "slipSheetBottom", "slipSheetBetweenLayers", "palletPick"
+      ];
+      
+      var keysEngine = [
+        "cycleTimeTotal", "realCadence", "efficiency",
+        "cycleTimePickS", "cycleTimeSlipSheetS", "cycleTimePalletS",
+        "generalRobotOccupancyRate", "generalMarginS"
       ];
 
-      var keysCycle = ["cycleTimePickS", "cycleTimeSlipSheetS", "cycleTimePalletS"];
-
-      var keysPallet = [
-        "gapBetweenBoxesS",
-        "totalBoxesOnPallet",
-        "picksPerPallet",
-        "boxesPerCycle",
-        "totalCyclesPerPallet",
-        "totalCycleTimePicksS",
-        "totalCycleTimeSlipSheetS",
-        "totalCycleTimePalletsS",
-        "totalCycleTimePerPallet",
-        "totalStackingTimeRobotS"
+      var keysBuffer = [
+        "beltSpeedMMin", "boxLengthMm", "upstreamProductionBpm",
+        "dynamicAccumulation", "recoveryTime", "safetyMargin", "saturation"
       ];
 
-      var keysGeneral = [
-        "generalRobotOccupancyRate",
-        "generalCyclesPerMinute",
-        "generalRequiredCycleS",
-        "generalAvailableCycleS",
-        "generalMarginS",
-        "generalChartComparison",
-        "chartLegendOccupancy",
-        "occupancyVisualStatus"
-      ];
-
-      var keysPerLine = [
-        "robotOccupancyRate",
-        "palletsPerHour",
-        "averageCycleTimeS",
-        "cyclesNumberPerMinute",
-        "totalTimeOfPalletStackingS",
-        "accumulationTimeToPalletExchangeS",
-        "productNumberInSlipAccumulation",
-        "cyclesToEmptySlipAccumulation",
-        "productsNumberInPalletAccumulation",
-        "lineMaxProductsInAccumulation",
-        "cyclesToEmptyPalletAccumulation"
-      ];
+      var keysHeatmap = ["burdenOccupancy"];
+      var keysInsights = ["insightSinglePick", "insightTransitionObfuscation"];
 
       var html = '<div class="help-surface">';
       html += '<div class="help-page-intro vs-card vs-card--main">';
       html += '<header class="help-page-head vs-card__header">';
       html += '<p class="help-page-kicker">' + escapeHtml(t("help_page_kicker")) + "</p>";
-      html += '<h1 class="help-page-title vs-card__title">' + escapeHtml(t("help_page_title")) + "</h1>";
-      html +=
-        '<p class="help-page-lede vs-card__description">' +
-        escapeHtml(t("help_page_intro")) +
-        "</p>";
+      html += '<h1 class="help-page-title vs-card__title">Manual de Engenharia de Aplicação</h1>';
+      html += '<p class="help-page-lede vs-card__description">O Guia Definitivo da Operação: Conceitos, fórmulas e funcionamento dos motores do Cycle Timer.</p>';
       html += "</header>";
 
       html += '<div class="help-page-intro__search vs-card__content">';
@@ -568,26 +538,44 @@
       html += '<div class="help-body">';
       html += renderFlowDiagram(t);
 
-      html += '<div class="help-columns">';
-      html += '<div class="help-column help-column--inputs" id="help-zone-inputs">';
-      html += '<p class="help-column-kicker">' + escapeHtml(t("help_column_inputs_kicker")) + "</p>";
+      html += '<div class="help-sections-manual">'; // Novo layout em lista (manual) em vez de colunas
+
+      // 1. Config
+      html += '<div class="help-manual-section">';
+      html += '<p class="help-column-kicker">01. Fundamentos</p>';
       html += renderRegion("help-region-config", "help_region_config", "help_region_config_hint", keysConfig, t);
-      html += renderRegion("help-region-cycles", "help_region_cycles", "help_region_cycles_hint", keysCycle, t);
-      html += renderRegion("help-region-pallet", "help_region_pallet", "help_region_pallet_hint", keysPallet, t);
-      html += "</div>";
+      html += '</div>';
 
-      html += '<div class="help-column help-column--outputs" id="help-zone-outputs">';
-      html += '<p class="help-column-kicker">' + escapeHtml(t("help_column_outputs_kicker")) + "</p>";
-      html += renderRegion("help-region-general", "help_region_general", "help_region_general_hint", keysGeneral, t);
-      html += renderRegion("help-region-lines", "help_region_lines", "help_region_lines_hint", keysPerLine, t);
-      html += "</div>";
+      // 2. Engine
+      html += '<div class="help-manual-section">';
+      html += '<p class="help-column-kicker">02. Cálculos de Tempo e Capacidade</p>';
+      html += renderRegion("help-region-engine", "Motor de Produtividade (Engine)", "Compreenda como o sistema calcula tempos totais, eficiência robótica e se a cadência atende a linha.", keysEngine, tLocal);
+      html += '</div>';
 
-      html += "</div>";
-      html += "</div>";
+      // 3. Buffer
+      html += '<div class="help-manual-section">';
+      html += '<p class="help-column-kicker">03. Esteiras e Acúmulo</p>';
+      html += renderRegion("help-region-buffer", "Dimensionamento de Buffers", "Análise de risco de transbordos durante as trocas de pallet baseada no comprimento mecânico da esteira.", keysBuffer, tLocal);
+      html += '</div>';
 
-      html += "</div>";
+      // 4. Heatmaps
+      html += '<div class="help-manual-section">';
+      html += '<p class="help-column-kicker">04. Cruzamento de Linhas</p>';
+      html += renderRegion("help-region-heatmap", "Matriz de Colisões (Combo Heatmap)", "No modo Campo Minado, o sistema cruza as taxas de parada de uma linha nas outras (Burden) para encontrar gargalos ocultos.", keysHeatmap, tLocal);
+      html += '</div>';
+
+      // 5. Insights
+      html += '<div class="help-manual-section">';
+      html += '<p class="help-column-kicker">05. Otimizações de Projeto</p>';
+      html += renderRegion("help-region-insights", "Avaliador Inteligente (Insights)", "Explicação dos alertas automáticos e heurísticas de engenharia sugeridas pelo sistema.", keysInsights, tLocal);
+      html += '</div>';
+
+      html += "</div>"; // end manual
+      html += "</div>"; // end body
+      html += "</div>"; // end surface
 
       container.innerHTML = html;
+
       container.setAttribute(HELP_RENDERED, "1");
       container.setAttribute(HELP_LANG, lang);
 

@@ -7,7 +7,7 @@
       var saved = window.localStorage.getItem(STORAGE_KEY);
       if (saved === "dark" || saved === "light") return saved;
     } catch (e) {}
-    return "light";
+    return "dark";
   }
 
   function setTheme(theme) {
@@ -47,9 +47,17 @@
   }
 
   function toggleTheme() {
+    // Adiciona classe de transição global momentânea
+    document.documentElement.classList.add("theme-transition");
+    
     var current = document.documentElement.getAttribute("data-theme") || getTheme();
     var next = current === "dark" ? "light" : "dark";
     applyTheme(next);
+    
+    // Remove a classe após a transição (300ms) para evitar lag no uso normal
+    window.setTimeout(function() {
+      document.documentElement.classList.remove("theme-transition");
+    }, 300);
   }
 
   function initThemeToggle() {
