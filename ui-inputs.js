@@ -352,7 +352,7 @@ function initInputsUI(api) {
       }
       
       var headers = ["ID", "Nome da Receita", "BPM", "Caixas/Camada", "Camadas/Palete", "Pegas/Camada", "Slip Bottom", "Slip Between", "Pallet Pick"];
-      var csvLines = [headers.join(",")];
+      var csvLines = [headers.join(";")];
       
       recipes.forEach(function(r) {
           var row = [
@@ -366,7 +366,7 @@ function initInputsUI(api) {
               r.slipSheetBetweenLayers || "",
               r.palletPick || ""
           ];
-          csvLines.push(row.join(","));
+          csvLines.push(row.join(";"));
       });
       
       var csvString = "\ufeff" + csvLines.join("\n");
