@@ -340,6 +340,53 @@ function initInputsUI(api) {
   attachAddRow(elAddRow);
   attachAddRow(elAddRowOverlay);
 
+  var elExportCsv = document.getElementById("recipes-export-csv");
+  if (elExportCsv) {
+    elExportCsv.addEventListener("click", function() {
+      if (typeof window.buildCycleTimerExportPayload !== "function") return;
+      var payload = window.buildCycleTimerExportPayload();
+      var recipes = payload.scenario && payload.scenario.recipes;
+      if (!recipes || recipes.length === 0) {
+          alert(window.I18N && typeof window.I18N.t === "function" ? window.I18N.t("scenario_err_recipes") : "Nenhuma receita para exportar.");
+          return;
+      }
+      
+      var headers = ["ID", "Nome da Receita", "BPM", "Caixas/Camada", "Camadas/Palete", "Pegas/Camada", "Slip Bottom", "Slip Between", "Pallet Pick"];
+      var csvLines = [headers.join(",")];
+      
+      recipes.forEach(function(r) {
+          var row = [
+              r.rowId || "",
+              r.nomeReceita ? '"' + String(r.nomeReceita).replace(/"/g, '""') + '"' : "",
+              r.productionBpm || "",
+              r.boxesPerLayer || "",
+              r.layersPerPallet || "",
+              r.picksPerLayer || "",
+              r.slipSheetBottom || "",
+              r.slipSheetBetweenLayers || "",
+              r.palletPick || ""
+          ];
+          csvLines.push(row.join(","));
+      });
+      
+      var csvString = "\ufeff" + csvLines.join("\n");
+      var blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "receitas.csv");
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Limpa o object URL após um pequeno tempo
+      setTimeout(function() {
+        URL.revokeObjectURL(url);
+      }, 1000);
+    });
+  }
+
   // Remoção de receitas (com proteção para a linha 1: apenas limpa ao invés de remover)
   if (elSheetBody) {
     elSheetBody.addEventListener("click", function (e) {
