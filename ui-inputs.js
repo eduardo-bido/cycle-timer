@@ -351,7 +351,7 @@ function initInputsUI(api) {
           return;
       }
       
-      var headers = ["ID", "Nome da Receita", "BPM", "Caixas/Camada", "Camadas/Palete", "Pegas/Camada", "Slip Bottom", "Slip Between", "Pallet Pick"];
+      var headers = ["ID", "Recipe Name", "BPM", "Boxes/Layer", "Layers/Pallet", "Picks/Layer", "Slip Bottom", "Slip Between", "Pallet Pick"];
       var csvLines = [headers.join(";")];
       
       recipes.forEach(function(r) {
